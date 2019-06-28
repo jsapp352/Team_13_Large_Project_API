@@ -12,8 +12,8 @@ public interface UserDao extends CrudRepository<User, Long> {
 
     List<User> findByRole(String role);
 
-    User findByKioskPin(long kioskPin);
+    User findByKioskPin(String kioskPin);
 
     @Query("SELECT u.kioskPin FROM User u")
-    List<Long> findAllKioskPins();
+    List<String> findAllKioskPins();
 }
