@@ -45,4 +45,9 @@ public class UserController {
         return service.addUser(user, "TA");
     }
 
+    @RequestMapping(value = "/teacher/course/{courseId}/", method = RequestMethod.GET)
+    public List<UserResponseDto> findTasByCourseId(@PathVariable long courseId) {
+        return service.findTasByCourseId(courseId);
+    }
+
 }

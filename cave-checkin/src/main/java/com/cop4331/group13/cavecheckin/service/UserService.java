@@ -107,4 +107,11 @@ public class UserService {
 
         return mapper.map(user, UserResponseDto.class);
     }
+
+    public List<UserResponseDto> findTasByCourseId(long courseId) {
+        List<UserResponseDto> dtos = new ArrayList<>();
+        dao.findUsersByCourseId(courseId).forEach(user -> dtos.add(mapper.map(user, UserResponseDto.class)));
+
+        return dtos;
+    }
 }

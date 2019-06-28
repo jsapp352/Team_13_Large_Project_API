@@ -16,4 +16,7 @@ public interface UserDao extends CrudRepository<User, Long> {
 
     @Query("SELECT u.kioskPin FROM User u")
     List<Long> findAllKioskPins();
+
+    @Query("SELECT u FROM User u, TaCourse t WHERE u.userId = t.userId AND t.courseId = :courseId AND u.isActive = true AND t.isActive = true")
+    List<User> findUsersByCourseId(long courseId);
 }
