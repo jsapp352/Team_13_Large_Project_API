@@ -15,17 +15,19 @@ public class Course {
     private String courseName;
     private long year;
     private String semester;
+    private boolean isActive;
 
     public Course() {
     }
 
-    public Course(long courseId, long userId, String courseCode, String courseName, long year, String semester) {
+    public Course(long courseId, long userId, String courseCode, String courseName, long year, String semester, boolean isActive) {
         this.courseId = courseId;
         this.userId = userId;
         this.courseCode = courseCode;
         this.courseName = courseName;
         this.year = year;
         this.semester = semester;
+        this.isActive = isActive;
     }
 
     public long getCourseId() {
@@ -74,5 +76,13 @@ public class Course {
 
     public void setSemester(String semester) {
         this.semester = semester;
+    }
+
+    public boolean isActive() {
+        return isActive;
+    }
+
+    public void setActive(boolean active) {
+        isActive = active;
     }
 }

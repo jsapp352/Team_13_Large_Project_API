@@ -1,11 +1,12 @@
 package com.cop4331.group13.cavecheckin.api.controller;
 
 import com.cop4331.group13.cavecheckin.api.dto.user.UserAddRequestDto;
-import com.cop4331.group13.cavecheckin.api.dto.user.UserAddResponseDto;
-import com.cop4331.group13.cavecheckin.api.dto.user.UserGetResponseDto;
+import com.cop4331.group13.cavecheckin.api.dto.user.UserResponseDto;
 import com.cop4331.group13.cavecheckin.service.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
+
+import java.util.List;
 
 @RestController
 @RequestMapping("/user")
@@ -15,22 +16,32 @@ public class UserController {
     private UserService service;
 
     @RequestMapping(value = "/", method = RequestMethod.POST)
-    public UserAddResponseDto addUser(@RequestBody UserAddRequestDto user) {
+    public UserResponseDto addUser(@RequestBody UserAddRequestDto user) {
         return service.addUser(user, "ADMIN");
     }
 
+    @RequestMapping(value = "/admin/", method = RequestMethod.GET)
+    public List<UserResponseDto> findTeachers() {
+        return service.getUsersByRole("TEACHER");
+    }
+
     @RequestMapping(value = "/admin/{userId}", method = RequestMethod.GET)
-    public UserGetResponseDto getUser(@PathVariable long userId) {
+    public UserResponseDto getUser(@PathVariable long userId) {
         return service.getUser(userId);
     }
 
     @RequestMapping(value = "/admin/", method = RequestMethod.POST)
-    public UserAddResponseDto addTeacher(@RequestBody UserAddRequestDto user) {
+    public UserResponseDto addTeacher(@RequestBody UserAddRequestDto user) {
         return service.addUser(user, "TEACHER");
     }
 
+    @RequestMapping(value = "/admin/{userId}/", method = RequestMethod.DELETE)
+    public UserResponseDto deactivateTeacher(@PathVariable long userId) {
+        return service.deactivateUser(userId);
+    }
+
     @RequestMapping(value = "/teacher/", method = RequestMethod.POST)
-    public UserAddResponseDto addTa(@RequestBody UserAddRequestDto user) {
+    public UserResponseDto addTa(@RequestBody UserAddRequestDto user) {
         return service.addUser(user, "TA");
     }
 

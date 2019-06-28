@@ -10,6 +10,8 @@ public interface UserDao extends CrudRepository<User, Long> {
 
     User findByUsername(String username);
 
+    List<User> findByRole(String role);
+
     User findByKioskPin(long kioskPin);
 
     @Query("SELECT u.kioskPin FROM User u")

@@ -1,6 +1,6 @@
 package com.cop4331.group13.cavecheckin.api.dto.user;
 
-public class UserGetResponseDto {
+public class UserResponseDto {
     private long userId;
     private String firstName;
     private String lastName;
@@ -9,10 +9,11 @@ public class UserGetResponseDto {
     private String password;
     private String role;
     private long kioskPin;
+    private boolean isActive;
 
-    public UserGetResponseDto() {}
+    public UserResponseDto() {}
 
-    public UserGetResponseDto(long userId, String firstName, String lastName, String email, String username, String password, String role, long kioskPin) {
+    public UserResponseDto(long userId, String firstName, String lastName, String email, String username, String password, String role, long kioskPin, boolean isActive) {
         this.userId = userId;
         this.firstName = firstName;
         this.lastName = lastName;
@@ -85,5 +86,13 @@ public class UserGetResponseDto {
 
     public void setKioskPin(long kioskPin) {
         this.kioskPin = kioskPin;
+    }
+
+    public boolean isActive() {
+        return isActive;
+    }
+
+    public void setActive(boolean active) {
+        isActive = active;
     }
 }

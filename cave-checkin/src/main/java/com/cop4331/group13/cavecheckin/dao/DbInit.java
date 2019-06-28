@@ -21,7 +21,8 @@ public class DbInit implements CommandLineRunner {
         admin.setUsername("admin");
         admin.setPassword(passwordEncoder.encode("admin123"));
         admin.setRole("ADMIN");
+        admin.setActive(true);
 
-        dao.save(admin);
+        // dao.save(admin);
     }
 }
