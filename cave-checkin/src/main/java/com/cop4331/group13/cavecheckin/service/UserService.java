@@ -12,6 +12,7 @@ import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
+import javax.xml.bind.DatatypeConverter;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
@@ -31,7 +32,7 @@ public class UserService {
     @Autowired
     private ModelMapper mapper;
 
-    private HashSet<Long> kioskPins = null;
+    private HashSet<String> kioskPins = null;
 
     public List<UserResponseDto> getUsersByRole(String role) {
         List<UserResponseDto> dtos = new ArrayList<>();
@@ -68,17 +69,17 @@ public class UserService {
     }
 
     // Generate random pins until we find one that hasn't been used already
-    private long generatePin() {
+    private String generatePin() {
         // Pull the kiosk pins if we haven't already;
         if (kioskPins == null) {
-            kioskPins = new HashSet<>();
+            kioskPins = new HashSet<String>();
             kioskPins.addAll(dao.findAllKioskPins());
         }
 
         // Generate a unique pin
-        long pin = (long) (Math.random() * 1000000);
+        String pin = DatatypeConverter.printLong((long)(Math.random() * 1000000));
         while (kioskPins.contains(pin)) {
-            pin = (long) (Math.random() * 1000000);
+            pin = DatatypeConverter.printLong((long)(Math.random() * 1000000));
         }
 
         // Add the pin to the set
