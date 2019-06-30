@@ -48,11 +48,15 @@ public class SessionService {
 
     public SessionResponseDto addSession(SessionAddRequestDto sessionDto) {
         Session session = mapper.map(sessionDto, Session.class);
+
+        session.setStartTime(new Date());
+
         dao.save(session);
 
         try {
             session = dao.save(session);
-        } catch (DataIntegrityViolationException e) {
+        }
+        catch (DataIntegrityViolationException e) {
             return null;
         }
 
@@ -81,7 +85,7 @@ public class SessionService {
 
         if (session != null)
         {
-            session.setStartTime(new Date());
+            session.setHelpTime(new Date());
 
             session = dao.save(session);
 
