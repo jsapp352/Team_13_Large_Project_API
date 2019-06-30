@@ -16,12 +16,12 @@ public class User {
     private String password;
     private String role;
     @Column(unique = true)
-    private long kioskPin;
+    private String kioskPin;
     private boolean isActive;
 
     public User() {}
 
-    public User(long userId, String firstName, String lastName, String email, String username, String password, String role, long kioskPin, boolean isActive) {
+    public User(long userId, String firstName, String lastName, String email, String username, String password, String role, String kioskPin, boolean isActive) {
         this.userId = userId;
         this.firstName = firstName;
         this.lastName = lastName;
@@ -89,11 +89,11 @@ public class User {
         this.role = role;
     }
 
-    public long getKioskPin() {
+    public String getKioskPin() {
         return kioskPin;
     }
 
-    public void setKioskPin(long kioskPin) {
+    public void setKioskPin(String kioskPin) {
         this.kioskPin = kioskPin;
     }
 
