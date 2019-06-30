@@ -12,9 +12,9 @@ import org.springframework.web.bind.annotation.RequestMethod;
 public interface SessionDao extends CrudRepository<Session, Long> {
     Session getSession(long sessionId);
 
-    Session addSession(SessionAddRequestDto session);
+    Session addSession(Session session);
 
-    Session startTutor(long sessionId);
+    Session startTutor(Session session);
 
-    Session endTutor(long sessionId);
+    Session endTutor(Session session);
 }
