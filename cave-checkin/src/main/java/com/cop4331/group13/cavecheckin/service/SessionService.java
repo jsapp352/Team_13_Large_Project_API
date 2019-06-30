@@ -38,7 +38,7 @@ public class SessionService {
     private ModelMapper mapper;
 
     public SessionResponseDto getSession(long sessionId) {
-        Session session = dao.findById(sessionId).orElse(null);
+        Session session = dao.findBySessionId(sessionId);
         if (session != null) {
             return mapper.map(session, SessionResponseDto.class);
         } else {
@@ -74,13 +74,16 @@ public class SessionService {
         }
 
         // If user was found, get the specified session
-        Session session = dao.getSession(sessionDto.getSessionId());
+        Session session = dao.findBySessionId(sessionDto.getSessionId());
 
+        // If session was found, update the session and create a response DTO
         SessionResponseDto responseDto = null;
 
         if (session != null)
         {
             session.setStartTime(new Date());
+
+            session = dao.save(session);
 
             responseDto = mapper.map(session, SessionResponseDto.class);
         }
@@ -98,13 +101,16 @@ public class SessionService {
         }
 
         // If user was found, get the specified session
-        Session session = dao.getSession(sessionDto.getSessionId());
+        Session session = dao.findBySessionId(sessionDto.getSessionId());
 
+        // If session was found, update the session and create a response DTO
         SessionResponseDto responseDto = null;
 
         if (session != null)
         {
             session.setEndTime(new Date());
+
+            session = dao.save(session);
 
             responseDto = mapper.map(session, SessionResponseDto.class);
         }
@@ -113,6 +119,7 @@ public class SessionService {
     }
 
     private User getUserByEncryptedPin(String encryptedPin) {
+        // Attempt to decrypt the kiosk PIN
         String decryptedPin;
         try {
             decryptedPin = decryptPin(encryptedPin);
@@ -127,8 +134,7 @@ public class SessionService {
 
     //DEV Not sure if this should move to another class.
     private String decryptPin(String encryptedPin)
-            throws InvalidKeyException, BadPaddingException, IllegalBlockSizeException
-    {
+            throws InvalidKeyException, BadPaddingException, IllegalBlockSizeException {
         //DEV keyGenString will be moved to an environment variable
         String keyGenString = "donteverlookatme";
 

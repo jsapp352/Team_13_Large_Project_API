@@ -10,11 +10,5 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 
 public interface SessionDao extends CrudRepository<Session, Long> {
-    Session getSession(long sessionId);
-
-    Session addSession(Session session);
-
-    Session startTutor(Session session);
-
-    Session endTutor(Session session);
+    Session findBySessionId(long sessionId);
 }
