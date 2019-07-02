@@ -1,6 +1,7 @@
 package com.cop4331.group13.cavecheckin.config;
 
 import com.cop4331.group13.cavecheckin.dao.UserDao;
+import com.cop4331.group13.cavecheckin.service.UserDetailsServiceImpl;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -20,7 +21,7 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 public class SecurityConfiguration extends WebSecurityConfigurerAdapter {
 
     @Autowired
-    private UserDetailsService userDetailsService;
+    private UserDetailsServiceImpl userDetailsService;
 
     @Autowired
     private UserDao userDao;
