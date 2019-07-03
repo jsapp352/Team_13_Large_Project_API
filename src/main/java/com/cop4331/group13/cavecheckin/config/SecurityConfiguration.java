@@ -39,10 +39,12 @@ public class SecurityConfiguration extends WebSecurityConfigurerAdapter {
                 .and()
                 .addFilter(new JwtAuthenticationFilter(authenticationManager()))
                 .addFilter(new JwtAuthorizationFilter(authenticationManager(), userDao))
+                //DEV Added this block to expose H2 Console for development use
                 .authorizeRequests()
                     .antMatchers("/h2/*").permitAll()
                     .and().headers().frameOptions().disable()
                     .and()
+                // Main security authorization block
                 .authorizeRequests()
                     .antMatchers(HttpMethod.POST, "/login").permitAll()
                     .antMatchers("/user/ta/*").hasAnyRole("ADMIN", "TEACHER", "TA")
