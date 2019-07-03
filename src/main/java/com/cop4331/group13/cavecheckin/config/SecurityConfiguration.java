@@ -40,18 +40,20 @@ public class SecurityConfiguration extends WebSecurityConfigurerAdapter {
                 .addFilter(new JwtAuthenticationFilter(authenticationManager()))
                 .addFilter(new JwtAuthorizationFilter(authenticationManager(), userDao))
                 .authorizeRequests()
-                .antMatchers("/h2/*").permitAll()
-                .antMatchers(HttpMethod.POST, "/login").permitAll()
-                .antMatchers("/user/ta/*").hasAnyRole("ADMIN", "TEACHER", "TA")
-                .antMatchers("/user/teacher/*").hasAnyRole("ADMIN", "TEACHER")
-                .antMatchers("/user/admin/*").hasAnyRole("ADMIN")
-                .antMatchers("/course/ta/*").hasAnyRole("ADMIN", "TEACHER", "TA")
-                .antMatchers("/course/teacher/*").hasAnyRole("ADMIN", "TEACHER")
-                .antMatchers("/course/admin/*").hasAnyRole("ADMIN")
-                .antMatchers("/session/ta/*").hasAnyRole("ADMIN", "TEACHER", "TA")
-                .antMatchers("/session/teacher/*").hasAnyRole("ADMIN", "TEACHER")
-                .antMatchers("/session/admin/*").hasAnyRole("ADMIN")
-                .anyRequest().authenticated();
+                    .antMatchers("/h2/*").permitAll()
+                    .antMatchers(HttpMethod.POST, "/login").permitAll()
+                    .and()
+                .authorizeRequests()
+                    .antMatchers("/user/ta/*").hasAnyRole("ADMIN", "TEACHER", "TA")
+                    .antMatchers("/user/teacher/*").hasAnyRole("ADMIN", "TEACHER")
+                    .antMatchers("/user/admin/*").hasAnyRole("ADMIN")
+                    .antMatchers("/course/ta/*").hasAnyRole("ADMIN", "TEACHER", "TA")
+                    .antMatchers("/course/teacher/*").hasAnyRole("ADMIN", "TEACHER")
+                    .antMatchers("/course/admin/*").hasAnyRole("ADMIN")
+                    .antMatchers("/session/ta/*").hasAnyRole("ADMIN", "TEACHER", "TA")
+                    .antMatchers("/session/teacher/*").hasAnyRole("ADMIN", "TEACHER")
+                    .antMatchers("/session/admin/*").hasAnyRole("ADMIN")
+                    .anyRequest().authenticated();
     }
 
     @Bean
