@@ -1,19 +1,26 @@
 package com.cop4331.group13.cavecheckin.service;
 
 import com.cop4331.group13.cavecheckin.api.dto.user.UserAddRequestDto;
+import com.cop4331.group13.cavecheckin.api.dto.user.UserPasswordRequestDto;
 import com.cop4331.group13.cavecheckin.api.dto.user.UserResponseDto;
+import com.cop4331.group13.cavecheckin.api.dto.user.UserUpdateRequestDto;
+import com.cop4331.group13.cavecheckin.dao.CourseDao;
 import com.cop4331.group13.cavecheckin.dao.TaCourseDao;
 import com.cop4331.group13.cavecheckin.dao.UserDao;
+import com.cop4331.group13.cavecheckin.domain.Course;
 import com.cop4331.group13.cavecheckin.domain.TaCourse;
 import com.cop4331.group13.cavecheckin.domain.User;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.DataIntegrityViolationException;
+import org.springframework.security.access.AccessDeniedException;
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import javax.xml.bind.DatatypeConverter;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 
@@ -22,6 +29,9 @@ public class UserService {
 
     @Autowired
     private UserDao dao;
+
+    @Autowired
+    private CourseDao courseDao;
 
     @Autowired
     private TaCourseDao taCourseDao;
@@ -33,6 +43,11 @@ public class UserService {
     private ModelMapper mapper;
 
     private HashSet<String> kioskPins = null;
+
+    public UserResponseDto getSelf(String username) {
+        User user = dao.findByUsername(username);
+        return (user != null) ? mapper.map(user, UserResponseDto.class) : null;
+    }
 
     public List<UserResponseDto> getUsersByRole(String role) {
         List<UserResponseDto> dtos = new ArrayList<>();
@@ -68,24 +83,46 @@ public class UserService {
         return mapper.map(user, UserResponseDto.class);
     }
 
-    // Generate random pins until we find one that hasn't been used already
-    private String generatePin() {
-        // Pull the kiosk pins if we haven't already;
-        if (kioskPins == null) {
-            kioskPins = new HashSet<String>();
-            kioskPins.addAll(dao.findAllKioskPins());
+    public UserResponseDto updateUser(long userId, UserUpdateRequestDto userDto) {
+        User user = dao.findById(userId).orElse(null);
+        if (user == null) return null;
+
+        // Update and save user object
+        user.setFirstName(userDto.getFirstName());
+        user.setLastName(userDto.getLastName());
+        user.setEmail(userDto.getEmail());
+
+        user = dao.save(user);
+
+        // Update the courses
+        List<TaCourse> taCourses = taCourseDao.findByUserId(userId);
+        if ((taCourses != null && taCourses.size() > 0) || (userDto.getCourses() != null && !userDto.getCourses().isEmpty())) {
+            // Map all of the user's existing courses to the courseId
+            HashMap<Long, TaCourse> taCourseMap = new HashMap<>();
+            if (taCourses != null) {
+                for (TaCourse taCourse : taCourses) {
+                    taCourseMap.put(taCourse.getCourseId(), taCourse);
+                }
+            }
+
+            // Add any new courses to the table
+            String[] courses = userDto.getCourses().split(",");
+            for (String courseId : courses) {
+                if (taCourseMap.containsKey(Long.valueOf(courseId))) {
+                    taCourseMap.remove(Long.valueOf(courseId));
+                } else {
+                    taCourseDao.save(new TaCourse(0, userId, Long.valueOf(courseId), true));
+                }
+            }
+
+            // Deactivate any previous courses that were not included in the new courses string
+            for (TaCourse taCourse : taCourseMap.values()) {
+                taCourse.setActive(false);
+                taCourseDao.save(taCourse);
+            }
         }
 
-        // Generate a unique pin
-        String pin = DatatypeConverter.printLong((long)(Math.random() * 1000000));
-        while (kioskPins.contains(pin)) {
-            pin = DatatypeConverter.printLong((long)(Math.random() * 1000000));
-        }
-
-        // Add the pin to the set
-        kioskPins.add(pin);
-
-        return pin;
+        return mapper.map(user, UserResponseDto.class);
     }
 
     public UserResponseDto getUser(long userId) {
@@ -109,10 +146,94 @@ public class UserService {
         return mapper.map(user, UserResponseDto.class);
     }
 
-    public List<UserResponseDto> findTasByCourseId(long courseId) {
+    public List<UserResponseDto> findTasByCourseId(long courseId, String username) throws AccessDeniedException {
+        verifyCourseAccess(username, courseId);
         List<UserResponseDto> dtos = new ArrayList<>();
         dao.findUsersByCourseId(courseId).forEach(user -> dtos.add(mapper.map(user, UserResponseDto.class)));
 
         return dtos;
+    }
+
+    public UserResponseDto findTaByUserId(long userId, String username) throws AccessDeniedException {
+        verifyTaAccess(username, userId);
+        User ta = dao.findById(userId).orElse(null);
+        return (ta != null) ? mapper.map(ta, UserResponseDto.class) : null;
+    }
+
+    public UserResponseDto updateTa(long userId, UserUpdateRequestDto userDto, String username) throws AccessDeniedException {
+        verifyTaAccess(username, userId);
+        return updateUser(userId, userDto);
+    }
+
+    public UserResponseDto deactivateTa(long userId, String username) throws AccessDeniedException {
+        verifyTaAccess(username, userId);
+        return deactivateUser(userId);
+    }
+
+    public UserResponseDto resetPassword(UserPasswordRequestDto dto, String username) {
+        User user = dao.findByUsername(username);
+        if (user == null) return null;
+
+        user.setPassword(passwordEncoder.encode(dto.getNewPassword()));
+        user = dao.save(user);
+
+        return mapper.map(user, UserResponseDto.class);
+    }
+
+    public UserResponseDto resetPin(String username) {
+        User user = dao.findByUsername(username);
+        if (user == null) return null;
+
+        String oldPin = user.getKioskPin();
+        user.setKioskPin(generatePin());
+
+        user = dao.save(user);
+        kioskPins.remove(oldPin);
+        kioskPins.add(user.getKioskPin());
+
+        return mapper.map(user, UserResponseDto.class);
+    }
+
+    public UserResponseDto updateSelf(UserUpdateRequestDto dto, String username) {
+        Long userId = dao.findUserIdByUsername(username);
+        return updateUser(userId, dto);
+    }
+    // Generate random pins until we find one that hasn't been used already
+
+    private String generatePin() {
+        // Pull the kiosk pins if we haven't already;
+        if (kioskPins == null) {
+            kioskPins = new HashSet<String>();
+            kioskPins.addAll(dao.findAllKioskPins());
+        }
+
+        // Generate a unique pin
+        String pin = DatatypeConverter.printLong((long)(Math.random() * 1000000));
+        while (kioskPins.contains(pin)) {
+            pin = DatatypeConverter.printLong((long)(Math.random() * 1000000));
+        }
+
+        // Add the pin to the set
+        kioskPins.add(pin);
+
+        return pin;
+    }
+
+    private void verifyTaAccess(String username, long userId) throws AccessDeniedException {
+        Long teacherId = dao.findUserIdByUsername(username);
+        List<TaCourse> taCourses = taCourseDao.findByUserId(userId);
+        if (teacherId == null || taCourses == null) throw new AccessDeniedException("You are not authorized to access this TA");
+        for (TaCourse taCourse : taCourses) {
+            Course course = courseDao.findById(taCourse.getCourseId()).orElse(null);
+            if (course != null && teacherId == course.getUserId()) return;
+        }
+
+        throw new AccessDeniedException("You are not authorized to access this TA");
+    }
+
+    private void verifyCourseAccess(String username, long courseId) throws AccessDeniedException {
+        Course course = courseDao.findById(courseId).orElse(null);
+        Long userId = dao.findUserIdByUsername(username);
+        if (userId == null || course == null || course.getUserId() != userId) throw new AccessDeniedException("You are not authorized to access this course");
     }
 }

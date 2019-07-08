@@ -5,6 +5,7 @@ import com.auth0.jwt.algorithms.Algorithm;
 import com.cop4331.group13.cavecheckin.api.dto.course.CourseRequestDto;
 import com.cop4331.group13.cavecheckin.api.dto.course.CourseResponseDto;
 import com.cop4331.group13.cavecheckin.config.JwtProperties;
+import com.cop4331.group13.cavecheckin.config.SecurityConfiguration;
 import com.cop4331.group13.cavecheckin.service.CourseService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.access.AccessDeniedException;
@@ -31,33 +32,26 @@ public class CourseController {
 
     @RequestMapping(value = "/teacher/", method = RequestMethod.GET)
     public List<CourseResponseDto> findTeacherCourse(@RequestHeader(value = JwtProperties.HEADER_STRING) String token) {
-        return service.findCourseByUsername(getAuthSubject(token));
+        return service.findCourseByUsername(SecurityConfiguration.getAuthSubject(token));
     }
 
     @RequestMapping(value = "/teacher/{courseId}/", method = RequestMethod.GET)
     public CourseResponseDto findTeacherCourseByCourseId(@RequestHeader(value = JwtProperties.HEADER_STRING) String token, @PathVariable long courseId) throws AccessDeniedException {
-        return service.findTeacherCourseByCourseId(courseId, getAuthSubject(token));
+        return service.findTeacherCourseByCourseId(courseId, SecurityConfiguration.getAuthSubject(token));
     }
 
     @RequestMapping(value = "/teacher/", method = RequestMethod.POST)
     public CourseResponseDto addCourse(@RequestHeader(value = JwtProperties.HEADER_STRING) String token, @RequestBody CourseRequestDto course) {
-        return service.addCourse(course, getAuthSubject(token));
+        return service.addCourse(course, SecurityConfiguration.getAuthSubject(token));
     }
 
     @RequestMapping(value = "/teacher/{courseId}/", method = RequestMethod.PUT)
     public CourseResponseDto updateCourse(@RequestHeader(value = JwtProperties.HEADER_STRING) String token, @PathVariable long courseId, @RequestBody CourseRequestDto course) throws AccessDeniedException {
-        return service.updateCourse(courseId, course, getAuthSubject(token));
+        return service.updateCourse(courseId, course, SecurityConfiguration.getAuthSubject(token));
     }
 
     @RequestMapping(value = "/teacher/{courseId}/", method = RequestMethod.DELETE)
     public CourseResponseDto deactivateCourse(@RequestHeader(value = JwtProperties.HEADER_STRING) String token, @PathVariable long courseId, @RequestBody CourseRequestDto course) throws AccessDeniedException {
-        return service.deactivateCourse(courseId, getAuthSubject(token));
-    }
-
-    private String getAuthSubject(String token) {
-        return JWT.require(Algorithm.HMAC512(JwtProperties.SECRET.getBytes()))
-                .build()
-                .verify(token.replace(JwtProperties.TOKEN_PREFIX, ""))
-                .getSubject();
+        return service.deactivateCourse(courseId, SecurityConfiguration.getAuthSubject(token));
     }
 }
