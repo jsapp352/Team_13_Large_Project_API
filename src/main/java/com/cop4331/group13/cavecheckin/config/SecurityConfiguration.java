@@ -1,5 +1,7 @@
 package com.cop4331.group13.cavecheckin.config;
 
+import com.auth0.jwt.JWT;
+import com.auth0.jwt.algorithms.Algorithm;
 import com.cop4331.group13.cavecheckin.dao.UserDao;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
@@ -64,5 +66,12 @@ public class SecurityConfiguration extends WebSecurityConfigurerAdapter {
     @Bean
     PasswordEncoder passwordEncoder() {
         return new BCryptPasswordEncoder();
+    }
+
+    public static String getAuthSubject(String token) {
+        return JWT.require(Algorithm.HMAC512(JwtProperties.SECRET.getBytes()))
+                .build()
+                .verify(token.replace(JwtProperties.TOKEN_PREFIX, ""))
+                .getSubject();
     }
 }
