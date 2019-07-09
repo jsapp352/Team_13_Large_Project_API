@@ -1,5 +1,7 @@
 package com.cop4331.group13.cavecheckin.config;
 
+import com.auth0.jwt.JWT;
+import com.auth0.jwt.algorithms.Algorithm;
 import com.cop4331.group13.cavecheckin.dao.UserDao;
 import com.cop4331.group13.cavecheckin.service.UserDetailsServiceImpl;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -47,6 +49,7 @@ public class SecurityConfiguration extends WebSecurityConfigurerAdapter {
                 // Main security authorization block
                 .authorizeRequests()
                     .antMatchers(HttpMethod.POST, "/login").permitAll()
+                    .antMatchers("/v2/api-docs", "/configuration/**", "/swagger*/**", "/webjars/**").permitAll()
                     .antMatchers("/user/ta/*").hasAnyRole("ADMIN", "TEACHER", "TA")
                     .antMatchers("/user/teacher/*").hasAnyRole("ADMIN", "TEACHER")
                     .antMatchers("/user/admin/*").hasAnyRole("ADMIN")
@@ -71,5 +74,12 @@ public class SecurityConfiguration extends WebSecurityConfigurerAdapter {
     @Bean
     PasswordEncoder passwordEncoder() {
         return new BCryptPasswordEncoder();
+    }
+
+    public static String getAuthSubject(String token) {
+        return JWT.require(Algorithm.HMAC512(JwtProperties.SECRET.getBytes()))
+                .build()
+                .verify(token.replace(JwtProperties.TOKEN_PREFIX, ""))
+                .getSubject();
     }
 }
