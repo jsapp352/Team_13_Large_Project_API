@@ -3,6 +3,7 @@ package com.cop4331.group13.cavecheckin.config;
 import com.auth0.jwt.JWT;
 import com.auth0.jwt.algorithms.Algorithm;
 import com.cop4331.group13.cavecheckin.dao.UserDao;
+import com.cop4331.group13.cavecheckin.service.UserDetailsServiceImpl;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -40,19 +41,25 @@ public class SecurityConfiguration extends WebSecurityConfigurerAdapter {
                 .and()
                 .addFilter(new JwtAuthenticationFilter(authenticationManager()))
                 .addFilter(new JwtAuthorizationFilter(authenticationManager(), userDao))
+                //DEV Added this block to expose H2 Console for development use
                 .authorizeRequests()
-                .antMatchers(HttpMethod.POST, "/login").permitAll()
-                .antMatchers("/v2/api-docs", "/configuration/**", "/swagger*/**", "/webjars/**").permitAll()
-                .antMatchers("/user/ta/*").hasAnyRole("ADMIN", "TEACHER", "TA")
-                .antMatchers("/user/teacher/*").hasAnyRole("ADMIN", "TEACHER")
-                .antMatchers("/user/admin/*").hasAnyRole("ADMIN")
-                .antMatchers("/course/ta/*").hasAnyRole("ADMIN", "TEACHER", "TA")
-                .antMatchers("/course/teacher/*").hasAnyRole("ADMIN", "TEACHER")
-                .antMatchers("/course/admin/*").hasAnyRole("ADMIN")
-                .antMatchers("/session/ta/*").hasAnyRole("ADMIN", "TEACHER", "TA")
-                .antMatchers("/session/teacher/*").hasAnyRole("ADMIN", "TEACHER")
-                .antMatchers("/session/admin/*").hasAnyRole("ADMIN")
-                .anyRequest().authenticated();
+                    .antMatchers("/h2/*").permitAll()
+                    .and().headers().frameOptions().disable()
+                    .and()
+                // Main security authorization block
+                .authorizeRequests()
+                    .antMatchers(HttpMethod.POST, "/login").permitAll()
+                    .antMatchers("/v2/api-docs", "/configuration/**", "/swagger*/**", "/webjars/**").permitAll()
+                    .antMatchers("/user/ta/*").hasAnyRole("ADMIN", "TEACHER", "TA")
+                    .antMatchers("/user/teacher/*").hasAnyRole("ADMIN", "TEACHER")
+                    .antMatchers("/user/admin/*").hasAnyRole("ADMIN")
+                    .antMatchers("/course/ta/*").hasAnyRole("ADMIN", "TEACHER", "TA")
+                    .antMatchers("/course/teacher/*").hasAnyRole("ADMIN", "TEACHER")
+                    .antMatchers("/course/admin/*").hasAnyRole("ADMIN")
+                    .antMatchers("/session/ta/*").hasAnyRole("ADMIN", "TEACHER", "TA")
+                    .antMatchers("/session/teacher/*").hasAnyRole("ADMIN", "TEACHER")
+                    .antMatchers("/session/admin/*").hasAnyRole("ADMIN")
+                    .anyRequest().authenticated();
     }
 
     @Bean
