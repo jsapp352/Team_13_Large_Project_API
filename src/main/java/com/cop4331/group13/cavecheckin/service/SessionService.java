@@ -86,6 +86,7 @@ public class SessionService {
         if (session != null)
         {
             session.setHelpTime(new Date());
+            session.setUserId(user.getUserId());
 
             session = dao.save(session);
 
@@ -113,6 +114,7 @@ public class SessionService {
         if (session != null)
         {
             session.setEndTime(new Date());
+            session.setUserId(user.getUserId());
 
             session = dao.save(session);
 
