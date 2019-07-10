@@ -141,8 +141,7 @@ public class SessionService {
     //DEV Not sure if this should move to another class.
     private String decryptPin(String encryptedPin)
             throws InvalidKeyException, BadPaddingException, IllegalBlockSizeException {
-        //DEV keyGenString will be moved to an environment variable
-        String keyGenString = "donteverlookatme";
+        String keyGenString = System.getenv("AES_SECRET");
 
         // Convert keyGenString to a byte array.
         byte[] encryptionKeyBytes = keyGenString.getBytes();
