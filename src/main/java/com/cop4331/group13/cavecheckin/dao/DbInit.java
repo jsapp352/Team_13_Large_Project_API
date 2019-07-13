@@ -27,7 +27,7 @@ public class DbInit implements CommandLineRunner {
             admin.setActive(true);
 
             dao.save(admin);
-//        }
+        }
 
     }
 }
