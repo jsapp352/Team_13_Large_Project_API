@@ -18,16 +18,16 @@ public class DbInit implements CommandLineRunner {
     @Override
     public void run(String... args) {
         // If an "admin" user does not exist, create it.
-//        if (dao.findByUsername("admin") == null)
-//        {
-//            User admin = new User();
-//            admin.setUsername("admin");
-//            admin.setPassword(passwordEncoder.encode("admin123"));
-//            admin.setRole("ADMIN");
-//            admin.setActive(true);
-//
-//            dao.save(admin);
-//        }
+        if (dao.findByUsername("admin") == null)
+        {
+            User admin = new User();
+            admin.setUsername("admin");
+            admin.setPassword(passwordEncoder.encode("admin123"));
+            admin.setRole("ADMIN");
+            admin.setActive(true);
+
+            dao.save(admin);
+        }
 
     }
 }
