@@ -3,6 +3,7 @@ package com.cop4331.group13.cavecheckin.domain;
 import javax.persistence.*;
 
 @Entity
+@Table(name = "\"user\"")
 public class User {
 
     @Id
