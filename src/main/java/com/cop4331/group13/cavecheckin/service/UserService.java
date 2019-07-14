@@ -1,9 +1,6 @@
 package com.cop4331.group13.cavecheckin.service;
 
-import com.cop4331.group13.cavecheckin.api.dto.user.UserAddRequestDto;
-import com.cop4331.group13.cavecheckin.api.dto.user.UserPasswordRequestDto;
-import com.cop4331.group13.cavecheckin.api.dto.user.UserResponseDto;
-import com.cop4331.group13.cavecheckin.api.dto.user.UserUpdateRequestDto;
+import com.cop4331.group13.cavecheckin.api.dto.user.*;
 import com.cop4331.group13.cavecheckin.dao.CourseDao;
 import com.cop4331.group13.cavecheckin.dao.TaCourseDao;
 import com.cop4331.group13.cavecheckin.dao.UserDao;
@@ -35,6 +32,9 @@ public class UserService {
 
     @Autowired
     private TaCourseDao taCourseDao;
+
+    @Autowired
+    private CourseService courseService;
 
     @Autowired
     private PasswordEncoder passwordEncoder;
@@ -94,34 +94,6 @@ public class UserService {
 
         user = dao.save(user);
 
-        // Update the courses
-        List<TaCourse> taCourses = taCourseDao.findByUserId(userId);
-        if ((taCourses != null && taCourses.size() > 0) || (userDto.getCourses() != null && !userDto.getCourses().isEmpty())) {
-            // Map all of the user's existing courses to the courseId
-            HashMap<Long, TaCourse> taCourseMap = new HashMap<>();
-            if (taCourses != null) {
-                for (TaCourse taCourse : taCourses) {
-                    taCourseMap.put(taCourse.getCourseId(), taCourse);
-                }
-            }
-
-            // Add any new courses to the table
-            String[] courses = userDto.getCourses().split(",");
-            for (String courseId : courses) {
-                if (taCourseMap.containsKey(Long.valueOf(courseId))) {
-                    taCourseMap.remove(Long.valueOf(courseId));
-                } else {
-                    taCourseDao.save(new TaCourse(0, userId, Long.valueOf(courseId), true));
-                }
-            }
-
-            // Deactivate any previous courses that were not included in the new courses string
-            for (TaCourse taCourse : taCourseMap.values()) {
-                taCourse.setActive(false);
-                taCourseDao.save(taCourse);
-            }
-        }
-
         return mapper.map(user, UserResponseDto.class);
     }
 
@@ -157,12 +129,63 @@ public class UserService {
     public UserResponseDto findTaByUserId(long userId, String username) throws AccessDeniedException {
         verifyTaAccess(username, userId);
         User ta = dao.findById(userId).orElse(null);
-        return (ta != null) ? mapper.map(ta, UserResponseDto.class) : null;
+        if (ta == null) return null;
+
+        TaResponseDto dto = mapper.map(ta, TaResponseDto.class);
+        dto.setCourses(courseService.findCourseByTaId(userId));
+
+        return dto;
     }
 
     public UserResponseDto updateTa(long userId, UserUpdateRequestDto userDto, String username) throws AccessDeniedException {
         verifyTaAccess(username, userId);
-        return updateUser(userId, userDto);
+        User user = dao.findById(userId).orElse(null);
+        if (user == null) return null;
+
+        // Update and save user object
+        user.setFirstName(userDto.getFirstName());
+        user.setLastName(userDto.getLastName());
+        user.setEmail(userDto.getEmail());
+
+        user = dao.save(user);
+
+        // Update the courses
+        List<TaCourse> taCourses = taCourseDao.findByUserId(userId);
+        if ((taCourses != null && taCourses.size() > 0) || (userDto.getCourses() != null && !userDto.getCourses().isEmpty())) {
+            // Map all of the user's existing courses to the courseId
+            HashMap<Long, TaCourse> taCourseMap = new HashMap<>();
+            if (taCourses != null) {
+                for (TaCourse taCourse : taCourses) {
+                    taCourseMap.put(taCourse.getCourseId(), taCourse);
+                }
+            }
+
+            // Add any new courses to the table
+            String[] courses = userDto.getCourses().split(",");
+            for (String courseId : courses) {
+                if (taCourseMap.containsKey(Long.valueOf(courseId))) {
+                    TaCourse course = taCourseMap.get(Long.valueOf(courseId));
+                    if (!course.isActive()) {
+                        course.setActive(true);
+                        taCourseDao.save(course);
+                    }
+                    taCourseMap.remove(Long.valueOf(courseId));
+                } else {
+                    taCourseDao.save(new TaCourse(0, userId, Long.valueOf(courseId), true));
+                }
+            }
+
+            // Deactivate any previous courses that were not included in the new courses string
+            for (TaCourse taCourse : taCourseMap.values()) {
+                taCourse.setActive(false);
+                taCourse = taCourseDao.save(taCourse);
+            }
+        }
+
+        TaResponseDto responseDto = mapper.map(user, TaResponseDto.class);
+        responseDto.setCourses(courseService.findCourseByTaId(userId));
+
+        return responseDto;
     }
 
     public UserResponseDto deactivateTa(long userId, String username) throws AccessDeniedException {

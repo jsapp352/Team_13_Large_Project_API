@@ -3,8 +3,10 @@ package com.cop4331.group13.cavecheckin.service;
 import com.cop4331.group13.cavecheckin.api.dto.course.CourseRequestDto;
 import com.cop4331.group13.cavecheckin.api.dto.course.CourseResponseDto;
 import com.cop4331.group13.cavecheckin.dao.CourseDao;
+import com.cop4331.group13.cavecheckin.dao.TaCourseDao;
 import com.cop4331.group13.cavecheckin.dao.UserDao;
 import com.cop4331.group13.cavecheckin.domain.Course;
+import com.cop4331.group13.cavecheckin.domain.TaCourse;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.access.AccessDeniedException;
@@ -21,6 +23,9 @@ public class CourseService {
 
     @Autowired
     private UserDao userDao;
+
+    @Autowired
+    private TaCourseDao taCourseDao;
 
     @Autowired
     private ModelMapper mapper;
@@ -93,6 +98,24 @@ public class CourseService {
         course = dao.save(course);
 
         return mapper.map(course, CourseResponseDto.class);
+    }
+
+    public List<CourseResponseDto> findCourseByTa(String username) {
+        Long userId = userDao.findUserIdByUsername(username);
+        if (userId == null) return null;
+
+        return findCourseByTaId(userId);
+    }
+
+    public List<CourseResponseDto> findCourseByTaId(long userId) {
+        List<CourseResponseDto> responseDtos = new ArrayList<>();
+        taCourseDao.findByUserId(userId).forEach(taCourse -> {
+            if (taCourse.isActive()) {
+                dao.findById(taCourse.getCourseId()).ifPresent(course -> responseDtos.add(mapper.map(course, CourseResponseDto.class)));
+            }
+        });
+
+        return responseDtos;
     }
 
     private void verifyCourseAccess(String username, Course course) throws AccessDeniedException {
