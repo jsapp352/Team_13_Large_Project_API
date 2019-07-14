@@ -236,11 +236,6 @@ public class SessionService {
         // Get sorted list of sessions
         List<Session> sessions = findSessionsByDate(courseId, new Date());
 
-        //DEBUG
-        System.out.println("Session IDs found by date:");
-        for (Session session : sessions)
-            System.out.println(session.getSessionId());
-
         // Build the sample data list for the rolling average
         List<Session> sampleSessions = new ArrayList<>();
 
@@ -373,6 +368,10 @@ public class SessionService {
 
             totalDuration += (helpTime.getTime() - startTime.getTime()) / 1000;
             recordCount++;
+
+            //DEBUG
+            System.out.println("Session " + session.getSessionId() + ": " +
+                    ((helpTime.getTime() - startTime.getTime()) / 1000));
         }
 
         // Return the average session duration in seconds
