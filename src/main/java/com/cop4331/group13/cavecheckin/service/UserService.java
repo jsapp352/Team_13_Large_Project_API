@@ -242,7 +242,7 @@ public class UserService {
         return pin;
     }
 
-    private void verifyTaAccess(String username, long userId) throws AccessDeniedException {
+    public void verifyTaAccess(String username, long userId) throws AccessDeniedException {
         Long teacherId = dao.findUserIdByUsername(username);
         List<TaCourse> taCourses = taCourseDao.findByUserId(userId);
         if (teacherId == null || taCourses == null) throw new AccessDeniedException("You are not authorized to access this TA");

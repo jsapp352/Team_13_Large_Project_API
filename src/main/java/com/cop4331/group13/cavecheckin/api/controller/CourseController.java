@@ -55,6 +55,11 @@ public class CourseController {
         return service.deactivateCourse(courseId, SecurityConfiguration.getAuthSubject(token));
     }
 
+    @RequestMapping(value = "/teacher/tacourses/{userId}/", method = RequestMethod.GET)
+    public List<CourseResponseDto> findCourseByTaId(@PathVariable long userId, @RequestHeader(value = JwtProperties.HEADER_STRING) String token) throws AccessDeniedException {
+        return service.findAuthorizedCourseByTaId(userId, SecurityConfiguration.getAuthSubject(token));
+    }
+
     @RequestMapping(value = "/ta/", method = RequestMethod.GET)
     public List<CourseResponseDto> findCourseByTa(@RequestHeader(value = JwtProperties.HEADER_STRING) String token) {
         return service.findCourseByTa(SecurityConfiguration.getAuthSubject(token));
