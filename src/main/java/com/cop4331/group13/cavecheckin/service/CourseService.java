@@ -28,6 +28,9 @@ public class CourseService {
     private TaCourseDao taCourseDao;
 
     @Autowired
+    private UserService userService;
+
+    @Autowired
     private ModelMapper mapper;
 
     public List<CourseResponseDto> findCourseByUserId(long userId) {
@@ -104,6 +107,11 @@ public class CourseService {
         Long userId = userDao.findUserIdByUsername(username);
         if (userId == null) return null;
 
+        return findCourseByTaId(userId);
+    }
+
+    public List<CourseResponseDto> findAuthorizedCourseByTaId(long userId, String username) throws AccessDeniedException {
+        userService.verifyTaAccess(username, userId);
         return findCourseByTaId(userId);
     }
 
