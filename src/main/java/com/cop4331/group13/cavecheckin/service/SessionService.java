@@ -19,10 +19,11 @@ import javax.crypto.SecretKey;
 import javax.crypto.spec.SecretKeySpec;
 import javax.xml.bind.DatatypeConverter;
 import java.security.InvalidKeyException;
+import java.time.LocalDateTime;
+import java.time.ZoneId;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
-import java.util.Optional;
 
 @Service
 public class SessionService {
@@ -264,9 +265,18 @@ public class SessionService {
             return averageWaitDuration(sampleSessions);
     }
 
-    private List<Session> findSessionsByDate(long courseId, Date helpTime)
+    private List<Session> findSessionsByDate(long courseId, Date date)
     {
-        return dao.findAllByCourseIdAndHelpTimeOrderByHelpTimeDesc(courseId, helpTime);
+        // A quick and dirty way to get the proper date range (11:59:59.999 yesterday to midnight tomorrow).
+        // Adapted from code by StackOverflow user Andrei Volgin.
+        Long time = new Date().getTime();
+
+        Date midnight = new Date(time - time % (24 * 60 * 60 * 1000));
+
+        Date startTimeStart = new Date(midnight.getTime() - 1);
+        Date startTimeEnd = new Date(midnight.getTime() + 24 * 60 * 60 * 1000);
+
+        return dao.findAllByCourseIdAndStartTimeBetweenOrderByStartTimeDesc(courseId, startTimeStart, startTimeEnd);
     }
 
     private User getUserByEncryptedPin(String encryptedPin) {

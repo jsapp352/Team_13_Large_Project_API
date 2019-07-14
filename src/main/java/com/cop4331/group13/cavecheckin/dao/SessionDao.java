@@ -18,5 +18,5 @@ public interface SessionDao extends CrudRepository<Session, Long> {
     Session findBySessionId(long sessionId);
     List<Session> findAllByCourseIdAndUserId(long courseId, long userId);
     List<Session> findAllByCourseId(long courseId);
-    List<Session> findAllByCourseIdAndHelpTimeOrderByHelpTimeDesc(long courseId, @Temporal(TemporalType.DATE) Date helpTime);
+    List<Session> findAllByCourseIdAndStartTimeBetweenOrderByStartTimeDesc(long courseId, Date startTimeStart, Date startTimeEnd);
 }
