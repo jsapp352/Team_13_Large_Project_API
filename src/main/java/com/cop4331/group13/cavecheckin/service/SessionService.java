@@ -368,10 +368,6 @@ public class SessionService {
 
             totalDuration += (helpTime.getTime() - startTime.getTime()) / 1000;
             recordCount++;
-
-            //DEBUG
-            System.out.println("Session " + session.getSessionId() + ": " +
-                    ((helpTime.getTime() - startTime.getTime()) / 1000));
         }
 
         // Return the average session duration in seconds
