@@ -1,5 +1,7 @@
 package com.cop4331.group13.cavecheckin.api.dto.session;
 
+import com.cop4331.group13.cavecheckin.domain.Session;
+
 import java.util.Date;
 
 public class SessionResponseDto {
@@ -21,6 +23,17 @@ public class SessionResponseDto {
         this.startTime = startTime;
         this.helpTime = helpTime;
         this.endTime = endTime;
+    }
+
+    public SessionResponseDto(Session session)
+    {
+        this.sessionId = session.getSessionId();
+        this.studentName = session.getStudentName();
+        this.userId = session.getUserId();
+        this.courseId = session.getCourseId();
+        this.startTime = session.getStartTime();
+        this.helpTime = session.getHelpTime();
+        this.endTime = session.getEndTime();
     }
 
     public long getSessionId() {

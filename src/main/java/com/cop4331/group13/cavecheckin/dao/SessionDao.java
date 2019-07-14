@@ -9,6 +9,10 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 
+import java.util.List;
+
 public interface SessionDao extends CrudRepository<Session, Long> {
     Session findBySessionId(long sessionId);
+    List<Session> findAllByCourseIdAndUserId(long courseId, long userId);
+    List<Session> findAllByCourseId(long courseId);
 }

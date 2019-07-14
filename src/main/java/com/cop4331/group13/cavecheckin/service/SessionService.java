@@ -1,11 +1,14 @@
 package com.cop4331.group13.cavecheckin.service;
 
 import com.cop4331.group13.cavecheckin.api.dto.session.SessionAddRequestDto;
+import com.cop4331.group13.cavecheckin.api.dto.session.SessionHistoryRequestDto;
 import com.cop4331.group13.cavecheckin.api.dto.session.SessionResponseDto;
 import com.cop4331.group13.cavecheckin.api.dto.session.SessionUpdateRequestDto;
 import com.cop4331.group13.cavecheckin.api.dto.user.UserResponseDto;
+import com.cop4331.group13.cavecheckin.dao.CourseDao;
 import com.cop4331.group13.cavecheckin.dao.SessionDao;
 import com.cop4331.group13.cavecheckin.dao.UserDao;
+import com.cop4331.group13.cavecheckin.domain.Course;
 import com.cop4331.group13.cavecheckin.domain.Session;
 import com.cop4331.group13.cavecheckin.domain.User;
 import org.modelmapper.ModelMapper;
@@ -24,7 +27,10 @@ import javax.crypto.SecretKey;
 import javax.crypto.spec.SecretKeySpec;
 import javax.xml.bind.DatatypeConverter;
 import java.security.InvalidKeyException;
+import java.util.ArrayList;
 import java.util.Date;
+import java.util.List;
+import java.util.Optional;
 
 @Service
 public class SessionService {
@@ -33,6 +39,9 @@ public class SessionService {
 
     @Autowired
     private UserDao userDao;
+
+    @Autowired
+    private CourseDao courseDao;
 
     @Autowired
     private ModelMapper mapper;
@@ -50,8 +59,6 @@ public class SessionService {
         Session session = mapper.map(sessionDto, Session.class);
 
         session.setStartTime(new Date());
-
-        dao.save(session);
 
         try {
             session = dao.save(session);
@@ -122,6 +129,100 @@ public class SessionService {
         }
 
         return responseDto;
+    }
+
+    public SessionResponseDto cancelTutor(SessionUpdateRequestDto sessionDto) {
+        // Validate request's user PIN.
+        User user = getUserByEncryptedPin(sessionDto.getEncryptedPin());
+
+        // If user is nonexistent or inactive, return null.
+        if (user == null || user.isActive() == false) {
+            return null;
+        }
+
+        // If user was found, get the specified session
+        Session session = dao.findBySessionId(sessionDto.getSessionId());
+
+        // If session was found, update the session and create a response DTO
+        SessionResponseDto responseDto = null;
+
+        if (session != null)
+        {
+            Date currentTime = new Date();
+            session.setStartTime(currentTime);
+            session.setEndTime(currentTime);
+            session.setUserId(user.getUserId());
+
+            session = dao.save(session);
+
+            responseDto = mapper.map(session, SessionResponseDto.class);
+        }
+
+        return responseDto;
+    }
+
+    public List<SessionResponseDto> getSessionHistoryByCourseIdAndTaId(SessionHistoryRequestDto requestDto)
+    {
+        // Verify that the user is either the course instructor, the TA whose
+        // history is being queried, or an admin.
+        Optional<Course> course = courseDao.findById(requestDto.getCourseId());
+
+        if (course.isEmpty())
+            return null;
+
+        Optional<User> user = userDao.findById(requestDto.getUserId());
+
+        if (user.isEmpty())
+            return null;
+
+        long userId = user.get().getUserId();
+
+        if (
+                course.get().getUserId() != userId ||
+                requestDto.getTaId() != userId ||
+                user.get().getRole() != "ADMIN")
+            return null;
+
+        // Get a list of sessions for the specified course and TA
+        List<Session> sessions = dao.findAllByCourseIdAndUserId(requestDto.getCourseId(), requestDto.getTaId());
+
+        // Build a list of SessionResponseDtos from the list of sessions
+        List<SessionResponseDto> sessionResponseDtos = new ArrayList<>();
+
+        for (Session session : sessions)
+            sessionResponseDtos.add(new SessionResponseDto(session));
+
+        return sessionResponseDtos;
+    }
+
+    public List<SessionResponseDto> getSessionHistoryByCourseId(SessionHistoryRequestDto requestDto)
+    {
+        // Verify that the user is either the course instructor or an admin.
+        Optional<Course> course = courseDao.findById(requestDto.getCourseId());
+
+        if (course.isEmpty())
+            return null;
+
+        Optional<User> user = userDao.findById(requestDto.getUserId());
+
+        if (user.isEmpty())
+            return null;
+
+        long userId = user.get().getUserId();
+
+        if (course.get().getUserId() != userId || user.get().getRole() != "ADMIN")
+            return null;
+
+        // Get a list of sessions for the specified course.
+        List<Session> sessions = dao.findAllByCourseId(requestDto.getCourseId());
+
+        // Build a list of SessionResponseDtos from the list of sessions
+        List<SessionResponseDto> sessionResponseDtos = new ArrayList<>();
+
+        for (Session session : sessions)
+            sessionResponseDtos.add(new SessionResponseDto(session));
+
+        return sessionResponseDtos;
     }
 
     private User getUserByEncryptedPin(String encryptedPin) {
