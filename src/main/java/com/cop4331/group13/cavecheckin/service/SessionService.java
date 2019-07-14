@@ -140,8 +140,9 @@ public class SessionService {
 
         if (session != null)
         {
+            // Set help time and end time to the current time to indicate a canceled session.
             Date currentTime = new Date();
-            session.setStartTime(currentTime);
+            session.setHelpTime(currentTime);
             session.setEndTime(currentTime);
             session.setUserId(user.getUserId());
 
