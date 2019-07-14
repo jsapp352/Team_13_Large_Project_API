@@ -155,27 +155,27 @@ public class SessionService {
 
     public SessionHistoryResponseDto getSessionHistoryByCourseIdAndTaId(SessionHistoryRequestDto requestDto)
     {
-        Optional<Course> course = courseDao.findById(requestDto.getCourseId());
+        Course course = courseDao.findById(requestDto.getCourseId()).orElse(null);
 
-        if (course.isEmpty())
+        if (course == null)
             return null;
 
         long userId = requestDto.getUserId();
         long taId = requestDto.getTaId();
 
-        Optional<User> user = userDao.findById(userId);
+        User user = userDao.findById(userId).orElse(null);
 
-        if (user.isEmpty())
+        if (user == null)
             return null;
 
-        long courseInstructorUserId = course.get().getUserId();
+        long courseInstructorUserId = course.getUserId();
 
         // Verify that any "TEACHER" users are authorized to request TA session data.
-        if (user.get().getRole() == "TEACHER" && userId != courseInstructorUserId)
+        if (user.getRole() == "TEACHER" && userId != courseInstructorUserId)
             return null;
 
         // Verify that any "TA" users are requesting to view their own data.
-        if (user.get().getRole() == "TA" && userId != taId)
+        if (user.getRole() == "TA" && userId != taId)
             return null;
 
         // Get a list of sessions for the specified course and TA
@@ -195,21 +195,21 @@ public class SessionService {
 
     public SessionHistoryResponseDto getSessionHistoryByCourseId(SessionHistoryRequestDto requestDto)
     {
-        Optional<Course> course = courseDao.findById(requestDto.getCourseId());
+        Course course = courseDao.findById(requestDto.getCourseId()).orElse(null);
 
-        if (course.isEmpty())
+        if (course == null)
             return null;
 
-        Optional<User> user = userDao.findById(requestDto.getUserId());
+        User user = userDao.findById(requestDto.getUserId()).orElse(null);
 
-        if (user.isEmpty())
+        if (user == null)
             return null;
 
-        long userId = user.get().getUserId();
-        long courseInstructorUserId = course.get().getUserId();
+        long userId = user.getUserId();
+        long courseInstructorUserId = course.getUserId();
 
         // Verify that any "TEACHER" users are authorized to view course data.
-        if (user.get().getRole() == "TEACHER" && userId != courseInstructorUserId)
+        if (user.getRole() == "TEACHER" && userId != courseInstructorUserId)
             return null;
 
         // Get a list of sessions for the specified course.
