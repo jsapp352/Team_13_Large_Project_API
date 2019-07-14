@@ -1,10 +1,6 @@
 package com.cop4331.group13.cavecheckin.service;
 
-import com.cop4331.group13.cavecheckin.api.dto.session.SessionAddRequestDto;
-import com.cop4331.group13.cavecheckin.api.dto.session.SessionHistoryRequestDto;
-import com.cop4331.group13.cavecheckin.api.dto.session.SessionResponseDto;
-import com.cop4331.group13.cavecheckin.api.dto.session.SessionUpdateRequestDto;
-import com.cop4331.group13.cavecheckin.api.dto.user.UserResponseDto;
+import com.cop4331.group13.cavecheckin.api.dto.session.*;
 import com.cop4331.group13.cavecheckin.dao.CourseDao;
 import com.cop4331.group13.cavecheckin.dao.SessionDao;
 import com.cop4331.group13.cavecheckin.dao.UserDao;
@@ -15,10 +11,6 @@ import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.stereotype.Service;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestMethod;
 
 import javax.crypto.BadPaddingException;
 import javax.crypto.Cipher;
@@ -161,30 +153,33 @@ public class SessionService {
         return responseDto;
     }
 
-    public List<SessionResponseDto> getSessionHistoryByCourseIdAndTaId(SessionHistoryRequestDto requestDto)
+    public SessionHistoryResponseDto getSessionHistoryByCourseIdAndTaId(SessionHistoryRequestDto requestDto)
     {
-        // Verify that the user is either the course instructor, the TA whose
-        // history is being queried, or an admin.
         Optional<Course> course = courseDao.findById(requestDto.getCourseId());
 
         if (course.isEmpty())
             return null;
 
-        Optional<User> user = userDao.findById(requestDto.getUserId());
+        long userId = requestDto.getUserId();
+        long taId = requestDto.getTaId();
+
+        Optional<User> user = userDao.findById(userId);
 
         if (user.isEmpty())
             return null;
 
-        long userId = user.get().getUserId();
+        long courseInstructorUserId = course.get().getUserId();
 
-        if (
-                course.get().getUserId() != userId ||
-                requestDto.getTaId() != userId ||
-                user.get().getRole() != "ADMIN")
+        // Verify that any "TEACHER" users are authorized to request TA session data.
+        if (user.get().getRole() == "TEACHER" && userId != courseInstructorUserId)
+            return null;
+
+        // Verify that any "TA" users are requesting to view their own data.
+        if (user.get().getRole() == "TA" && userId != taId)
             return null;
 
         // Get a list of sessions for the specified course and TA
-        List<Session> sessions = dao.findAllByCourseIdAndUserId(requestDto.getCourseId(), requestDto.getTaId());
+        List<Session> sessions = dao.findAllByCourseIdAndUserId(requestDto.getCourseId(), taId);
 
         // Build a list of SessionResponseDtos from the list of sessions
         List<SessionResponseDto> sessionResponseDtos = new ArrayList<>();
@@ -192,12 +187,14 @@ public class SessionService {
         for (Session session : sessions)
             sessionResponseDtos.add(new SessionResponseDto(session));
 
-        return sessionResponseDtos;
+        // Calculate the average duration of a session (in seconds)
+        int averageSessionDuration = averageSessionDuration(sessions);
+
+        return new SessionHistoryResponseDto(sessionResponseDtos, averageSessionDuration);
     }
 
-    public List<SessionResponseDto> getSessionHistoryByCourseId(SessionHistoryRequestDto requestDto)
+    public SessionHistoryResponseDto getSessionHistoryByCourseId(SessionHistoryRequestDto requestDto)
     {
-        // Verify that the user is either the course instructor or an admin.
         Optional<Course> course = courseDao.findById(requestDto.getCourseId());
 
         if (course.isEmpty())
@@ -209,20 +206,61 @@ public class SessionService {
             return null;
 
         long userId = user.get().getUserId();
+        long courseInstructorUserId = course.get().getUserId();
 
-        if (course.get().getUserId() != userId || user.get().getRole() != "ADMIN")
+        // Verify that any "TEACHER" users are authorized to view course data.
+        if (user.get().getRole() == "TEACHER" && userId != courseInstructorUserId)
             return null;
 
         // Get a list of sessions for the specified course.
         List<Session> sessions = dao.findAllByCourseId(requestDto.getCourseId());
 
-        // Build a list of SessionResponseDtos from the list of sessions
+        // Build a list of SessionResponseDtos from the list of sessions.
         List<SessionResponseDto> sessionResponseDtos = new ArrayList<>();
 
         for (Session session : sessions)
             sessionResponseDtos.add(new SessionResponseDto(session));
 
-        return sessionResponseDtos;
+        // Calculate the average duration of a session (in seconds).
+        int averageSessionDuration = averageSessionDuration(sessions);
+
+        return new SessionHistoryResponseDto(sessionResponseDtos, averageSessionDuration);
+    }
+
+    public int getCurrentEstimatedWaitTime(long courseId)
+    {
+        int sampleSize = 5;
+
+        // Get sorted list of sessions
+        List<Session> sessions = findSessionsByDate(courseId, new Date());
+
+        // Build the sample data list for the rolling average
+        List<Session> sampleSessions = new ArrayList<>();
+
+        for (int i = 0; (i < sessions.size()) && (sampleSessions.size() < sampleSize); i++)
+        {
+            Session session = sessions.get(i);
+
+            // Omit sessions that are either canceled or still waiting for help.
+            if (session.getStartTime() == null ||
+                    session.getHelpTime() == null ||
+                    session.getHelpTime().equals(session.getEndTime()))
+                continue;
+
+            sampleSessions.add(session);
+        }
+
+        // Return -1 if no valid sample data is available
+        if (sampleSessions.isEmpty())
+            return -1;
+        // Otherwise, return the average wait duration
+        else
+            return averageWaitDuration(sampleSessions);
+    }
+
+    private List<Session> findSessionsByDate(long courseId, Date helpTime)
+    {
+        return dao.findAllByCourseIdAndHelpTimeOrderByHelpTimeDesc(courseId, helpTime);
     }
 
     private User getUserByEncryptedPin(String encryptedPin) {
@@ -239,7 +277,6 @@ public class SessionService {
         return userDao.findByKioskPin(decryptedPin);
     }
 
-    //DEV Not sure if this should move to another class.
     private String decryptPin(String encryptedPin)
             throws InvalidKeyException, BadPaddingException, IllegalBlockSizeException {
         String keyGenString = System.getenv("AES_SECRET");
@@ -272,5 +309,57 @@ public class SessionService {
 
         // Return the decrypted PIN byte array as a string.
         return new String(pinBytes);
+    }
+
+    private int averageSessionDuration(List<Session> sessions) {
+        // Could use an int for one TA, but long is definitely safe for multiple TAs' course session histories.
+        long totalDuration = 0;
+        int recordCount = 0;
+
+        // Calculate the total duration of all valid session records
+        for (Session session : sessions)
+        {
+            if (session == null)
+                continue;
+
+            Date helpTime = session.getHelpTime();
+            Date endTime = session.getEndTime();
+
+            // Check for missing or invalid help/end time values.
+            if (helpTime == null || endTime == null || !endTime.after(helpTime))
+                continue;
+
+            totalDuration += (endTime.getTime() - helpTime.getTime()) / 1000;
+            recordCount++;
+        }
+
+        // Return the average session duration in seconds
+        return (int)(totalDuration / recordCount);
+    }
+
+    private int averageWaitDuration(List<Session> sessions) {
+        long totalDuration = 0;
+        int recordCount = 0;
+
+        // Calculate the total wait duration of all valid session records
+        for (Session session : sessions)
+        {
+            if (session == null)
+                continue;
+
+            Date startTime = session.getStartTime();
+            Date helpTime = session.getHelpTime();
+            Date endTime = session.getEndTime();
+
+            // Check for missing/invalid time values.
+            if (startTime == null || helpTime == null || !helpTime.after(startTime))
+                continue;
+
+            totalDuration += (helpTime.getTime() - startTime.getTime()) / 1000;
+            recordCount++;
+        }
+
+        // Return the average session duration in seconds
+        return (int)(totalDuration / recordCount);
     }
 }
