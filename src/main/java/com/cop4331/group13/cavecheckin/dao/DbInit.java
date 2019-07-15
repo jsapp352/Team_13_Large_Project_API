@@ -104,13 +104,11 @@ public class DbInit implements CommandLineRunner {
         {
             Course course = createTestCourse(courseCodes[i], year, "Spring", teachers.get(i % teachers.size()), tAs);
             courses.add(course);
-            courseDao.save(course);
 
             if (rand.nextBoolean())
             {
                 course = createTestCourse(courseCodes[i], year-1, "Fall", teachers.get(i % teachers.size()), tAs);
                 courses.add(course);
-                courseDao.save(course);
             }
         }
 
@@ -130,6 +128,8 @@ public class DbInit implements CommandLineRunner {
         course.setSemester(semester);
         course.setYear(year);
         course.setActive(true);
+
+        courseDao.save(course);
 
         HashSet<Integer> courseTaIds = new HashSet<>();
 
