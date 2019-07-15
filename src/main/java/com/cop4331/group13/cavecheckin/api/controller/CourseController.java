@@ -20,6 +20,11 @@ public class CourseController {
     @Autowired
     private CourseService service;
 
+    @RequestMapping(value = "", method = RequestMethod.GET)
+    public List<CourseResponseDto> findAllCourses() {
+        return service.findAllCourses();
+    }
+
     @RequestMapping(value = "/admin/user/{userId}/", method = RequestMethod.GET)
     public List<CourseResponseDto> findCourseByUserId(@PathVariable long userId) {
         return service.findCourseByUserId(userId);
