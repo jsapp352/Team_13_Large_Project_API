@@ -10,18 +10,18 @@ import java.util.List;
 
 @Service
 public class DbInit implements CommandLineRunner {
-    private UserDao userDao;
+    private UserDao dao;
     private PasswordEncoder passwordEncoder;
 
-    public DbInit(UserDao userDao, PasswordEncoder passwordEncoder) {
-        this.userDao = userDao;
+    public DbInit(UserDao dao, PasswordEncoder passwordEncoder) {
+        this.dao = dao;
         this.passwordEncoder = passwordEncoder;
     }
 
     @Override
     public void run(String... args) {
         // If an "admin" user does not exist, create it.
-        if (userDao.findByUsername("admin") == null)
+        if (dao.findByUsername("admin") == null)
         {
             User admin = new User();
             admin.setUsername("admin");
@@ -29,7 +29,7 @@ public class DbInit implements CommandLineRunner {
             admin.setRole("ADMIN");
             admin.setActive(true);
 
-            userDao.save(admin);
+            dao.save(admin);
         }
 
         populateTestData();
@@ -93,7 +93,7 @@ public class DbInit implements CommandLineRunner {
             user.setActive(true);
 
             users.add(user);
-            userDao.save(user);
+            dao.save(user);
         }
 
         return users;
