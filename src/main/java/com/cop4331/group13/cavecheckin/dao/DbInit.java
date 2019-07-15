@@ -1,22 +1,28 @@
 package com.cop4331.group13.cavecheckin.dao;
 
+import com.cop4331.group13.cavecheckin.domain.Course;
+import com.cop4331.group13.cavecheckin.domain.TaCourse;
 import com.cop4331.group13.cavecheckin.domain.User;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Random;
 
 @Service
 public class DbInit implements CommandLineRunner {
     private CourseDao courseDao;
     private UserDao userDao;
+    private TaCourseDao taCourseDao;
     private PasswordEncoder passwordEncoder;
 
-    public DbInit(CourseDao courseDao, UserDao userDao, PasswordEncoder passwordEncoder) {
+    public DbInit(CourseDao courseDao, UserDao userDao, TaCourseDao taCourseDao, PasswordEncoder passwordEncoder) {
         this.courseDao = courseDao;
         this.userDao = userDao;
+        this.taCourseDao = taCourseDao;
         this.passwordEncoder = passwordEncoder;
     }
 
@@ -38,7 +44,7 @@ public class DbInit implements CommandLineRunner {
     }
 
     private void populateTestData() {
-        String[] courseNames = new String[]{
+        String[] courseCodes = new String[]{
                 "COP3223",
                 "COP3502",
                 "COP3503",
@@ -83,6 +89,68 @@ public class DbInit implements CommandLineRunner {
 
         List<User> teachers = createUsersWithRole(teacherNames, "TEACHER");
         List<User> tAs = createUsersWithRole(taNames, "TA");
+
+        List<Course> courses = createCourses(courseCodes, teachers, tAs);
+    }
+
+    private ArrayList<Course> createCourses(String[] courseCodes, List<User> teachers, List<User> tAs) {
+        Random rand = new Random();
+
+        int year = 2019;
+
+        ArrayList<Course> courses = new ArrayList<>();
+
+        for (int i = 0; i < courseCodes.length; i++)
+        {
+            Course course = createTestCourse(courseCodes[i], year, "Spring", teachers.get(i), tAs);
+            courses.add(course);
+            courseDao.save(course);
+
+            if (rand.nextBoolean())
+            {
+                course = createTestCourse(courseCodes[i], year-1, "Fall", teachers.get(i), tAs);
+                courses.add(course);
+                courseDao.save(course);
+            }
+        }
+
+        return courses;
+    }
+
+    private Course createTestCourse(String courseCode, int year, String semester, User teacher, List<User> tAs) {
+        Random rand = new Random();
+
+        int taListSize = tAs.size();
+        int courseTaCount = Math.min((rand.nextInt(10) + 1), taListSize);
+
+        Course course = new Course();
+
+        course.setUserId(teacher.getUserId());
+        course.setCourseCode(courseCode);
+        course.setSemester(semester);
+        course.setYear(year);
+        course.setActive(true);
+
+        HashSet<Integer> courseTaIds = new HashSet<>();
+
+        // Get a random collection of unique TA IDs.
+        while (courseTaIds.size() < courseTaCount)
+        {
+            courseTaIds.add(rand.nextInt(taListSize));
+        }
+
+        for (Integer taId : courseTaIds)
+        {
+            TaCourse taCourse = new TaCourse();
+
+            taCourse.setCourseId(course.getCourseId());
+            taCourse.setUserId(taId);
+            taCourse.setActive(true);
+
+            taCourseDao.save(taCourse);
+        }
+
+        return course;
     }
 
     List<User> createUsersWithRole(String[] names, String role) {
