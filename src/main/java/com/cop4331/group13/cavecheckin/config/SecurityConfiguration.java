@@ -60,7 +60,7 @@ public class SecurityConfiguration extends WebSecurityConfigurerAdapter {
                     .antMatchers("/session/ta/*").hasAnyRole("ADMIN", "TEACHER", "TA")
                     .antMatchers("/session/teacher/*").hasAnyRole("ADMIN", "TEACHER")
                     .antMatchers("/session/admin/*").hasAnyRole("ADMIN")
-                    .anyRequest().authenticated();
+                    .anyRequest().permitAll();
     }
 
     @Bean
