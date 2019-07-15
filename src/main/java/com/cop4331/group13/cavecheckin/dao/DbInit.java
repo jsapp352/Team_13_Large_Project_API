@@ -109,7 +109,7 @@ public class DbInit implements CommandLineRunner {
         String firstName = splitName[0];
         String lastName = splitName[1];
         String username = String.format("%s%c", firstName.toLowerCase(), lastName.toLowerCase().charAt(0));
-        String email = String.format("%s@ucf.edu", username);
+        String email = String.format("%s.%c@ucf.edu", firstName.toLowerCase(), lastName.toLowerCase().charAt(0));
 
         user.setFirstName(firstName);
         user.setLastName(lastName);
