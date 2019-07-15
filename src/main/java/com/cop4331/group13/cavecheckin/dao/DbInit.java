@@ -44,12 +44,12 @@ public class DbInit implements CommandLineRunner {
     }
 
     private void populateTestData() {
-        String[] courseCodes = new String[]{
-                "COP3223",
-                "COP3502",
-                "COP3503",
-                "COT3100",
-                "COP3330"
+        String[] courseCodesandNames = new String[]{
+                "COP3223 Intro to C",
+                "COP3502 Computer Science I",
+                "COP3503 Computer Science II",
+                "COT3100 Discrete Structures I",
+                "COP3330 Object Oriented Programming"
         };
 
         String[] teacherNames = new String[]{
@@ -90,24 +90,28 @@ public class DbInit implements CommandLineRunner {
         List<User> teachers = createUsersWithRole(teacherNames, "TEACHER");
         List<User> tAs = createUsersWithRole(taNames, "TA");
 
-        List<Course> courses = createCourses(courseCodes, teachers, tAs);
+        List<Course> courses = createCourses(courseCodesandNames, teachers, tAs);
     }
 
-    private ArrayList<Course> createCourses(String[] courseCodes, List<User> teachers, List<User> tAs) {
+    private ArrayList<Course> createCourses(String[] courseCodesAndNames, List<User> teachers, List<User> tAs) {
         Random rand = new Random();
 
         int year = 2019;
 
         ArrayList<Course> courses = new ArrayList<>();
 
-        for (int i = 0; i < courseCodes.length; i++)
+        for (int i = 0; i < courseCodesAndNames.length; i++)
         {
-            Course course = createTestCourse(courseCodes[i], year, "Spring", teachers.get(i % teachers.size()), tAs);
+            String[] courseStringSplit = courseCodesAndNames[i].split(" ??");
+            String courseCode = courseStringSplit[0];
+            String courseName = courseStringSplit[1];
+
+            Course course = createTestCourse(courseCode, courseName, year, "Spring", teachers.get(i % teachers.size()), tAs);
             courses.add(course);
 
             if (rand.nextBoolean())
             {
-                course = createTestCourse(courseCodes[i], year-1, "Fall", teachers.get(i % teachers.size()), tAs);
+                course = createTestCourse(courseCodesAndNames[i], courseName, year-1, "Fall", teachers.get(i % teachers.size()), tAs);
                 courses.add(course);
             }
         }
@@ -115,7 +119,7 @@ public class DbInit implements CommandLineRunner {
         return courses;
     }
 
-    private Course createTestCourse(String courseCode, int year, String semester, User teacher, List<User> tAs) {
+    private Course createTestCourse(String courseCode, String courseName, int year, String semester, User teacher, List<User> tAs) {
         Random rand = new Random();
 
         int taListSize = tAs.size();
@@ -125,6 +129,7 @@ public class DbInit implements CommandLineRunner {
 
         course.setUserId(teacher.getUserId());
         course.setCourseCode(courseCode);
+        course.setCourseName(courseName);
         course.setSemester(semester);
         course.setYear(year);
         course.setActive(true);
