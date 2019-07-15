@@ -3,6 +3,7 @@ package com.cop4331.group13.cavecheckin.dao;
 import com.cop4331.group13.cavecheckin.api.dto.session.SessionAddRequestDto;
 import com.cop4331.group13.cavecheckin.api.dto.session.SessionResponseDto;
 import com.cop4331.group13.cavecheckin.domain.Session;
+import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.jpa.repository.Temporal;
 import org.springframework.data.repository.CrudRepository;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -19,4 +20,10 @@ public interface SessionDao extends CrudRepository<Session, Long> {
     List<Session> findAllByCourseIdAndUserId(long courseId, long userId);
     List<Session> findAllByCourseId(long courseId);
     List<Session> findAllByCourseIdAndStartTimeBetweenOrderByStartTimeDesc(long courseId, Date startTimeStart, Date startTimeEnd);
+
+    @Query("SELECT s FROM Session s where courseId = :courseId AND helpTime = null")
+    List<Session> findAllWaitingByCourseId(long courseId);
+
+    @Query("SELECT s FROM Session s where courseId = :courseId AND helpTime IS NOT null AND endTime = null")
+    List<Session> findAllInProgressByCourseId(long courseId);
 }

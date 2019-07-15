@@ -48,6 +48,18 @@ public class SessionService {
         }
     }
 
+    public List<SessionResponseDto> getWaitingSessionsByCourseId(long courseId) {
+        List<SessionResponseDto> dtos = new ArrayList<>();
+        dao.findAllWaitingByCourseId(courseId).forEach(session -> dtos.add(mapper.map(session, SessionResponseDto.class)));
+        return dtos;
+    }
+
+    public List<SessionResponseDto> getInProgressSessionsByCourseId(long courseId) {
+        List<SessionResponseDto> dtos = new ArrayList<>();
+        dao.findAllInProgressByCourseId(courseId).forEach(session -> dtos.add(mapper.map(session, SessionResponseDto.class)));
+        return dtos;
+    }
+
     public SessionResponseDto addSession(SessionAddRequestDto sessionDto) {
         Session session = mapper.map(sessionDto, Session.class);
 

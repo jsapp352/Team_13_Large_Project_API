@@ -16,6 +16,16 @@ public class SessionController {
     @Autowired
     private SessionService service;
 
+    @RequestMapping(value = "/waiting/{courseId}/", method = RequestMethod.GET)
+    public List<SessionResponseDto> getWaitingSessionsByCourseId(@PathVariable long courseId) {
+        return service.getWaitingSessionsByCourseId(courseId);
+    }
+
+    @RequestMapping(value = "/inProgress/{courseId}/", method = RequestMethod.GET)
+    public List<SessionResponseDto> getInProgressSessionsByCourseId(@PathVariable long courseId) {
+        return service.getInProgressSessionsByCourseId(courseId);
+    }
+
     @RequestMapping(value = "/ta/{sessionId}/", method = RequestMethod.GET)
     public SessionResponseDto getSession(@PathVariable long sessionId) {
         return service.getSession(sessionId);
