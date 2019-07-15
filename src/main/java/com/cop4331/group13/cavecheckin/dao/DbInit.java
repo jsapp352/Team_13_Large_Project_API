@@ -114,7 +114,7 @@ public class DbInit implements CommandLineRunner {
         user.setFirstName(firstName);
         user.setLastName(lastName);
         user.setUsername(username);
-        user.setPassword(firstName);
+        user.setPassword(passwordEncoder.encode(firstName));
         user.setEmail(email);
 
         return user;
