@@ -111,7 +111,7 @@ public class DbInit implements CommandLineRunner {
 
             if (rand.nextBoolean())
             {
-                course = createTestCourse(courseCodesAndNames[i], courseName, year-1, "Fall", teachers.get(i % teachers.size()), tAs);
+                course = createTestCourse(courseCode, courseName, year-1, "Fall", teachers.get(i % teachers.size()), tAs);
                 courses.add(course);
             }
         }
