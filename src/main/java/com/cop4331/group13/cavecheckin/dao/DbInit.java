@@ -102,7 +102,7 @@ public class DbInit implements CommandLineRunner {
 
         for (int i = 0; i < courseCodesAndNames.length; i++)
         {
-            String[] courseStringSplit = courseCodesAndNames[i].split(" ??");
+            String[] courseStringSplit = courseCodesAndNames[i].split(" ", 2);
             String courseCode = courseStringSplit[0];
             String courseName = courseStringSplit[1];
 
