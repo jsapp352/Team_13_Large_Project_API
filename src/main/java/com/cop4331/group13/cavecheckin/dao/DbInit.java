@@ -102,13 +102,13 @@ public class DbInit implements CommandLineRunner {
 
         for (int i = 0; i < courseCodes.length; i++)
         {
-            Course course = createTestCourse(courseCodes[i], year, "Spring", teachers.get(i), tAs);
+            Course course = createTestCourse(courseCodes[i], year, "Spring", teachers.get(i % teachers.size()), tAs);
             courses.add(course);
             courseDao.save(course);
 
             if (rand.nextBoolean())
             {
-                course = createTestCourse(courseCodes[i], year-1, "Fall", teachers.get(i), tAs);
+                course = createTestCourse(courseCodes[i], year-1, "Fall", teachers.get(i % teachers.size()), tAs);
                 courses.add(course);
                 courseDao.save(course);
             }
