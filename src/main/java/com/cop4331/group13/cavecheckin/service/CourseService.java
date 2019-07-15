@@ -33,6 +33,12 @@ public class CourseService {
     @Autowired
     private ModelMapper mapper;
 
+    public List<CourseResponseDto> findAllCourses() {
+        List<CourseResponseDto> dtos = new ArrayList<>();
+        dao.findAll().forEach(course -> dtos.add(mapper.map(course, CourseResponseDto.class)));
+        return  dtos;
+    }
+
     public List<CourseResponseDto> findCourseByUserId(long userId) {
         List<CourseResponseDto> dtos = new ArrayList<>();
         dao.findByUserId(userId).forEach(course -> dtos.add(mapper.map(course, CourseResponseDto.class)));
