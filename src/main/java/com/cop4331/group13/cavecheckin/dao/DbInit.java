@@ -104,7 +104,7 @@ public class DbInit implements CommandLineRunner {
         User user = new User();
 
         // Split name string only at the first space
-        String[] splitName = name.split(" ??");
+        String[] splitName = name.split(" ", 2);
 
         String firstName = splitName[0];
         String lastName = splitName[1];
