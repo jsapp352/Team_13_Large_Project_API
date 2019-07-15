@@ -149,7 +149,7 @@ public class DbInit implements CommandLineRunner {
             TaCourse taCourse = new TaCourse();
 
             taCourse.setCourseId(course.getCourseId());
-            taCourse.setUserId(taId);
+            taCourse.setUserId(tAs.get(taId).getUserId());
             taCourse.setActive(true);
 
             taCourseDao.save(taCourse);
