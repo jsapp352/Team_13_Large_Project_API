@@ -181,13 +181,13 @@ public class DbInit implements CommandLineRunner {
             // Get an average session duration based on a Gaussian distribution and no less than a given number.
             int averageSessionDuration = Math.max(
                     minimumAverageSessionDuration,
-                    (int)(typicalAverageSessionDuration * (1.0 + rand.nextGaussian()))
+                    (int)(typicalAverageSessionDuration * (1.0 + rand.nextGaussian()/4))
             );
 
             // Get an average session wait time based on a Gaussian distribution and no less than a given number.
             int averageWaitTime = Math.max(
                     minimumAverageWaitTime,
-                    (int)(typicalAverageWaitTime * (1.0 + rand.nextGaussian()))
+                    (int)(typicalAverageWaitTime * (1.0 + rand.nextGaussian()/4))
             );
 
             int startingWaitTime = 3 * 60;
@@ -244,8 +244,8 @@ public class DbInit implements CommandLineRunner {
                         startTime = startTime.plusDays(2);
                 }
 
-                LocalDateTime helpTime = startTime.plusSeconds((long)(averageWaitTime * (1 + rand.nextGaussian())));
-                LocalDateTime endTime = helpTime.plusSeconds((long)(averageSessionDuration * (1 + rand.nextGaussian())));
+                LocalDateTime helpTime = startTime.plusSeconds((long)(averageWaitTime * (1 + rand.nextGaussian()/4)));
+                LocalDateTime endTime = helpTime.plusSeconds((long)(averageSessionDuration * (1 + rand.nextGaussian()/4)));
 
                 long taId = tAs[rand.nextInt(tAs.length)].getUserId();
 
