@@ -141,8 +141,8 @@ public class DbInit implements CommandLineRunner {
         Random rand = new Random();
 
         int averageCurrentSessionCount = 5;
-        int averageSessionCount = 300;
-        int minimumSessionCount = 50;
+        int averageSessionCount = 20;
+        int minimumSessionCount = 10;
 
         // Durations are given in seconds.
         int typicalAverageSessionDuration = 22 * 60;
@@ -193,20 +193,23 @@ public class DbInit implements CommandLineRunner {
             int startingWaitTime = 3 * 60;
             int waitTime = startingWaitTime;
 
-            for (int i = 0; i < currentSessionCount; i++)
-            {
-                waitTime += (int)(60 * (4.0 + rand.nextGaussian()));
+            int i = 0;
 
-                // Start current sessions any time from 1 to 20 minutes ago
-                LocalDateTime startTime = LocalDateTime.now().minusSeconds(waitTime);
+            if (course.isActive()) {
+                for (; i < currentSessionCount; i++) {
+                    waitTime += (int) (60 * (4.0 + rand.nextGaussian()));
 
-                long taId = tAs[rand.nextInt(tAs.length)].getUserId();
-                String studentName = studentNames[rand.nextInt(studentNames.length)];
+                    // Start current sessions any time from 1 to 20 minutes ago
+                    LocalDateTime startTime = LocalDateTime.now().minusSeconds(waitTime);
 
-                sessions.add(createTestCurrentSession(studentName, taId, courseId, startTime, startingWaitTime, waitTime));
+                    long taId = tAs[rand.nextInt(tAs.length)].getUserId();
+                    String studentName = studentNames[rand.nextInt(studentNames.length)];
+
+                    sessions.add(createTestCurrentSession(studentName, taId, courseId, startTime, startingWaitTime, waitTime));
+                }
             }
 
-            for (int i = currentSessionCount; i < sessionCount; i++)
+            for (; i < sessionCount; i++)
             {
                 Month month = firstMonth.plus(rand.nextInt(monthRange + 1));
 
@@ -264,7 +267,7 @@ public class DbInit implements CommandLineRunner {
         session.setStudentName(studentName);
         session.setStartTime(convertDate(startTime));
 
-        if (waitTime > (startingWaitTime * 3))
+        if (waitTime > (startingWaitTime * 2))
         {
             LocalDateTime helpTime = LocalDateTime.now().minusSeconds(rand.nextInt(startingWaitTime * 2));
             session.setHelpTime(convertDate(helpTime));
@@ -345,13 +348,14 @@ public class DbInit implements CommandLineRunner {
             String[] courseStringSplit = courseCodesAndNames[i].split(" ", 2);
             String courseCode = courseStringSplit[0];
             String courseName = courseStringSplit[1];
+            User teacher = teachers.get(i % teachers.size());
 
-            Course course = createTestCourse(courseCode, courseName, year, "Spring", teachers.get(i % teachers.size()));
+            Course course = createTestCourse(courseCode, courseName, year, "Spring", teacher, true);
             courses.add(course);
 
             if (rand.nextBoolean())
             {
-                course = createTestCourse(courseCode, courseName, year-1, "Fall", teachers.get(i % teachers.size()));
+                course = createTestCourse(courseCode, courseName, year-1, "Fall", teacher, false);
                 courses.add(course);
             }
         }
@@ -359,7 +363,7 @@ public class DbInit implements CommandLineRunner {
         return courses;
     }
 
-    private Course createTestCourse(String courseCode, String courseName, int year, String semester, User teacher) {
+    private Course createTestCourse(String courseCode, String courseName, int year, String semester, User teacher, boolean isActive) {
         Course course = new Course();
 
         course.setUserId(teacher.getUserId());
@@ -367,7 +371,7 @@ public class DbInit implements CommandLineRunner {
         course.setCourseName(courseName);
         course.setSemester(semester);
         course.setYear(year);
-        course.setActive(true);
+        course.setActive(isActive);
 
         courseDao.save(course);
 
