@@ -219,7 +219,7 @@ public class DbInit implements CommandLineRunner {
                 );
 
                 // Lazy way to make sure we only get times that are prior to today.
-                while (startTime.compareTo(LocalDateTime.now().minusDays(1)) < 0)
+                while (startTime.compareTo(LocalDateTime.now().minusDays(1)) >= 0)
                 {
                     startTime = LocalDateTime.of(
                             year,
