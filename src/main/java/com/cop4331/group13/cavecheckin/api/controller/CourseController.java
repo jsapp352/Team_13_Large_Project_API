@@ -20,6 +20,11 @@ public class CourseController {
     @Autowired
     private CourseService service;
 
+    @RequestMapping(value = "", method = RequestMethod.GET)
+    public List<CourseResponseDto> findAllCourses() {
+        return service.findAllCourses();
+    }
+
     @RequestMapping(value = "/admin/user/{userId}/", method = RequestMethod.GET)
     public List<CourseResponseDto> findCourseByUserId(@PathVariable long userId) {
         return service.findCourseByUserId(userId);
@@ -53,6 +58,11 @@ public class CourseController {
     @RequestMapping(value = "/teacher/{courseId}/", method = RequestMethod.DELETE)
     public CourseResponseDto deactivateCourse(@RequestHeader(value = JwtProperties.HEADER_STRING) String token, @PathVariable long courseId, @RequestBody CourseRequestDto course) throws AccessDeniedException {
         return service.deactivateCourse(courseId, SecurityConfiguration.getAuthSubject(token));
+    }
+
+    @RequestMapping(value = "/teacher/tacourses/{userId}/", method = RequestMethod.GET)
+    public List<CourseResponseDto> findCourseByTaId(@PathVariable long userId, @RequestHeader(value = JwtProperties.HEADER_STRING) String token) throws AccessDeniedException {
+        return service.findAuthorizedCourseByTaId(userId, SecurityConfiguration.getAuthSubject(token));
     }
 
     @RequestMapping(value = "/ta/", method = RequestMethod.GET)
