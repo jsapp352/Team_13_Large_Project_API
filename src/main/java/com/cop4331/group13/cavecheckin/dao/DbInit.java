@@ -129,14 +129,14 @@ public class DbInit implements CommandLineRunner {
 
         List<Course> courses = createCourses(courseCodesandNames, teachers);
 
-        HashMap<Course, Long[]> taCourses = createTaCourseRecords(courses, tAs);
+        HashMap<Course, User[]> taCourses = createTaCourseRecords(courses, tAs);
 
         List<Session> sessions = createSessions(studentNames, taCourses, courses);
 
 
     }
 
-    private List<Session> createSessions(String [] studentNames, HashMap<Course, Long[]> taCourses, List<Course> courses)
+    private List<Session> createSessions(String [] studentNames, HashMap<Course, User[]> taCourses, List<Course> courses)
     {
         Random rand = new Random();
 
@@ -161,7 +161,7 @@ public class DbInit implements CommandLineRunner {
         for (Course course : courses)
         {
             long courseId = course.getCourseId();
-            Long [] taIds = taCourses.get(courseId);
+            User [] tAs = taCourses.get(course);
 
             int year = (int)course.getYear();
             Month firstMonth = semesterMonthRange.get(course.getSemester())[0];
@@ -200,7 +200,7 @@ public class DbInit implements CommandLineRunner {
                 // Start current sessions any time from 1 to 20 minutes ago
                 LocalDateTime startTime = LocalDateTime.now().minusSeconds(waitTime);
 
-                long taId = taIds[rand.nextInt(taIds.length)];
+                long taId = tAs[rand.nextInt(tAs.length)].getUserId();
                 String studentName = studentNames[rand.nextInt(studentNames.length)];
 
                 sessions.add(createTestCurrentSession(studentName, taId, courseId, startTime, startingWaitTime, waitTime));
@@ -236,15 +236,15 @@ public class DbInit implements CommandLineRunner {
                 if (day > DayOfWeek.FRIDAY.getValue())
                 {
                     if (day > 2)
-                        startTime.minusDays(2);
+                        startTime = startTime.minusDays(2);
                     else
-                        startTime.plusDays(2);
+                        startTime = startTime.plusDays(2);
                 }
 
                 LocalDateTime helpTime = startTime.plusSeconds((long)(averageWaitTime * (1 + rand.nextGaussian())));
                 LocalDateTime endTime = helpTime.plusSeconds((long)(averageSessionDuration * (1 + rand.nextGaussian())));
 
-                long taId = taIds[rand.nextInt(taIds.length)];
+                long taId = tAs[rand.nextInt(tAs.length)].getUserId();
 
                 String studentName = studentNames[rand.nextInt(studentNames.length)];
 
@@ -290,17 +290,17 @@ public class DbInit implements CommandLineRunner {
         return session;
     }
 
-    Date convertDate(LocalDateTime dateTime)
+    private Date convertDate(LocalDateTime dateTime)
     {
         return Date.from(dateTime.atZone( ZoneId.systemDefault()).toInstant());
     }
 
-    private HashMap<Course, Long[]> createTaCourseRecords(List<Course> courses, List<User> tAs)
+    private HashMap<Course, User[]> createTaCourseRecords(List<Course> courses, List<User> tAs)
     {
 
         Random rand = new Random();
 
-        HashMap<Course, Long[]> taCourses = new HashMap<>();
+        HashMap<Course, User[]> taCourses = new HashMap<>();
 
         int taListSize = tAs.size();
 
@@ -308,26 +308,26 @@ public class DbInit implements CommandLineRunner {
         {
             int courseTaCount = Math.min((rand.nextInt(10) + 1), taListSize);
 
-            HashSet<Integer> courseTaIds = new HashSet<>();
+            HashSet<User> courseTas = new HashSet<>();
 
             // Get a random collection of unique TA IDs.
-            while (courseTaIds.size() < courseTaCount)
+            while (courseTas.size() < courseTaCount)
             {
-                courseTaIds.add(rand.nextInt(taListSize));
+                courseTas.add(tAs.get(rand.nextInt(taListSize)));
             }
 
-            for (Integer taId : courseTaIds)
+            for (User ta : courseTas)
             {
                 TaCourse taCourse = new TaCourse();
 
                 taCourse.setCourseId(course.getCourseId());
-                taCourse.setUserId(tAs.get(taId).getUserId());
+                taCourse.setUserId(ta.getUserId());
                 taCourse.setActive(true);
 
                 taCourseDao.save(taCourse);
             }
 
-            taCourses.put(course, courseTaIds.toArray(new Long[courseTaIds.size()]));
+            taCourses.put(course, courseTas.toArray(new User[0]));
         }
 
         return taCourses;
@@ -374,7 +374,7 @@ public class DbInit implements CommandLineRunner {
         return course;
     }
 
-    List<User> createUsersWithRole(String[] names, String role) {
+    private List<User> createUsersWithRole(String[] names, String role) {
         List<User> users = new ArrayList<>();
 
         for (String name : names)
