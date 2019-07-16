@@ -140,8 +140,8 @@ public class DbInit implements CommandLineRunner {
     {
         Random rand = new Random();
 
-        int averageCurrentSessionCount = 8;
-        int averageSessionCount = 500;
+        int averageCurrentSessionCount = 5;
+        int averageSessionCount = 300;
         int minimumSessionCount = 50;
 
         // Durations are given in seconds.
