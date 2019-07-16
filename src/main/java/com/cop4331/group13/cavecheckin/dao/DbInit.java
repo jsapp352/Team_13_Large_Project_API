@@ -267,9 +267,11 @@ public class DbInit implements CommandLineRunner {
         session.setStudentName(studentName);
         session.setStartTime(convertDate(startTime));
 
-        if (waitTime > (startingWaitTime * 2))
+        int helpTimeThreshold = startingWaitTime * 6;
+
+        if (waitTime > helpTimeThreshold)
         {
-            LocalDateTime helpTime = LocalDateTime.now().minusSeconds(rand.nextInt(startingWaitTime * 2));
+            LocalDateTime helpTime = LocalDateTime.now().minusSeconds(rand.nextInt(helpTimeThreshold));
             session.setHelpTime(convertDate(helpTime));
         }
 
