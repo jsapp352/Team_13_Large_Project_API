@@ -213,7 +213,7 @@ public class DbInit implements CommandLineRunner {
                 LocalDateTime startTime = LocalDateTime.of(
                         year,
                         month,
-                        rand.nextInt(month.length(false)),
+                        rand.nextInt(month.length(false)) + 1,
                         10 + rand.nextInt(7),  //
                         rand.nextInt(60)
                 );
@@ -224,7 +224,7 @@ public class DbInit implements CommandLineRunner {
                     startTime = LocalDateTime.of(
                             year,
                             month,
-                            rand.nextInt(month.length(false)),
+                            rand.nextInt(month.length(false)) + 1,
                             10 + rand.nextInt(7),  //
                             rand.nextInt(60)
                     );
