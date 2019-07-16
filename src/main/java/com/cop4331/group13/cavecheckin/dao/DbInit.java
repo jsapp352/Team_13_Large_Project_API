@@ -352,8 +352,14 @@ public class DbInit implements CommandLineRunner {
             String courseName = courseStringSplit[1];
             User teacher = teachers.get(i % teachers.size());
 
-            Course course = createTestCourse(courseCode, courseName, year, "Spring", teacher, true);
+            Course course = createTestCourse(courseCode, courseName, year, "Summer", teacher, true);
             courses.add(course);
+
+            if (rand.nextBoolean())
+            {
+                course = createTestCourse(courseCode, courseName, year, "Spring", teacher, false);
+                courses.add(course);
+            }
 
             if (rand.nextBoolean())
             {
