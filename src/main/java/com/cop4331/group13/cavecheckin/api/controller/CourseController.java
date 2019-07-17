@@ -14,6 +14,7 @@ import org.springframework.web.bind.annotation.*;
 import java.util.List;
 
 @RestController
+@CrossOrigin(maxAge = 72000)
 @RequestMapping("/course/")
 public class CourseController {
 
