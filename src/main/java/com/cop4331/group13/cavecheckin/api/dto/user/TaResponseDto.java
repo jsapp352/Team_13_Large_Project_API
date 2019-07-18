@@ -10,7 +10,7 @@ public class TaResponseDto extends UserResponseDto {
     public TaResponseDto() {
     }
 
-    public TaResponseDto(long userId, String firstName, String lastName, String email, String username, String password, String role, long kioskPin, boolean isActive, List<CourseResponseDto> courses) {
+    public TaResponseDto(long userId, String firstName, String lastName, String email, String username, String password, String role, String kioskPin, boolean isActive, List<CourseResponseDto> courses) {
         super(userId, firstName, lastName, email, username, password, role, kioskPin, isActive);
         this.courses = courses;
     }

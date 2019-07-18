@@ -1,20 +1,15 @@
 package com.cop4331.group13.cavecheckin.config;
 
-import org.springframework.stereotype.Component;
-
 import javax.crypto.*;
 import javax.crypto.spec.SecretKeySpec;
 import javax.xml.bind.DatatypeConverter;
 import java.security.InvalidKeyException;
-import java.util.Base64;
 
-@Component
 public class EncryptionUtil {
 	private Cipher cipher;
 	private SecretKey secretKey;
 
-	public EncryptionUtil()
-	{
+	public EncryptionUtil()	{
 		String keyGenString = System.getenv("AES_SECRET");
 
 		byte[] encryptionKeyBytes = keyGenString.getBytes();
@@ -30,13 +25,11 @@ public class EncryptionUtil {
 		}
 	}
 
-	public String Decrypt(String encryptedMessage)
-	{
-		return Decrypt(DatatypeConverter.parseHexBinary(encryptedMessage));
+	public String decrypt(String encryptedMessage) {
+		return decrypt(DatatypeConverter.parseHexBinary(encryptedMessage));
 	}
 
-	public String Decrypt(byte[] encryptedMessage)
-	{
+	public String decrypt(byte[] encryptedMessage) {
 		String message;
 
 		try
@@ -52,7 +45,7 @@ public class EncryptionUtil {
 		return message;
 	}
 
-	public String Encrypt(String message) {
+	public String encrypt(String message) {
 		byte[] encryptedMessage;
 
 		try
@@ -68,16 +61,12 @@ public class EncryptionUtil {
 		return DatatypeConverter.printHexBinary(encryptedMessage);
 	}
 
-	public byte[] encryptMessage(byte[] message)
-			throws InvalidKeyException, BadPaddingException, IllegalBlockSizeException
-	{
+	public byte[] encryptMessage(byte[] message) throws InvalidKeyException, BadPaddingException, IllegalBlockSizeException	{
 		cipher.init(Cipher.ENCRYPT_MODE, secretKey);
 		return cipher.doFinal(message);
 	}
 
-	public byte[] decryptMessage(byte[] encryptedMessage)
-			throws InvalidKeyException, BadPaddingException, IllegalBlockSizeException
-	{
+	public byte[] decryptMessage(byte[] encryptedMessage) throws InvalidKeyException, BadPaddingException, IllegalBlockSizeException {
 		cipher.init(Cipher.DECRYPT_MODE, secretKey);
 		return cipher.doFinal(encryptedMessage);
 	}

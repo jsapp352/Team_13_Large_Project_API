@@ -43,9 +43,6 @@ public class UserService {
     @Autowired
     private ModelMapper mapper;
 
-    @Autowired
-    private EncryptionUtil encryptionUtil;
-
     private HashSet<String> kioskPins = null;
 
     public UserResponseDto getSelf(String username) {
