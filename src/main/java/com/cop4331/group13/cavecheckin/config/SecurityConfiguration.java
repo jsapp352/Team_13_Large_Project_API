@@ -56,7 +56,8 @@ public class SecurityConfiguration extends WebSecurityConfigurerAdapter {
                     .antMatchers("/course/ta/*").hasAnyRole("ADMIN", "TEACHER", "TA")
                     .antMatchers("/course/teacher/*").hasAnyRole("ADMIN", "TEACHER")
                     .antMatchers("/course/admin/*").hasAnyRole("ADMIN")
-                    .antMatchers("/session/kiosk/*").hasAnyRole("ADMIN", "TEACHER", "TA", "KIOSK")
+                    // DEV Unsure if we want kiosk to be validated or not, raises session expiration issues - leaving unauthorized for now
+                    .antMatchers("/session/kiosk/*").permitAll() // .hasAnyRole("ADMIN", "TEACHER", "TA", "KIOSK")
                     .antMatchers("/session/ta/*").hasAnyRole("ADMIN", "TEACHER", "TA")
                     .antMatchers("/session/teacher/*").hasAnyRole("ADMIN", "TEACHER")
                     .antMatchers("/session/admin/*").hasAnyRole("ADMIN")
