@@ -1,11 +1,14 @@
 package com.cop4331.group13.cavecheckin.config;
 
+import org.springframework.stereotype.Component;
+
 import javax.crypto.*;
 import javax.crypto.spec.SecretKeySpec;
 import javax.xml.bind.DatatypeConverter;
 import java.security.InvalidKeyException;
 import java.util.Base64;
 
+@Component
 public class EncryptionUtil {
 	private Cipher cipher;
 	private SecretKey secretKey;

@@ -1,6 +1,7 @@
 package com.cop4331.group13.cavecheckin.service;
 
 import com.cop4331.group13.cavecheckin.api.dto.user.*;
+import com.cop4331.group13.cavecheckin.config.EncryptionUtil;
 import com.cop4331.group13.cavecheckin.dao.CourseDao;
 import com.cop4331.group13.cavecheckin.dao.TaCourseDao;
 import com.cop4331.group13.cavecheckin.dao.UserDao;
@@ -41,6 +42,9 @@ public class UserService {
 
     @Autowired
     private ModelMapper mapper;
+
+    @Autowired
+    private EncryptionUtil encryptionUtil;
 
     private HashSet<String> kioskPins = null;
 
