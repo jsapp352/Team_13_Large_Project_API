@@ -75,7 +75,7 @@ public class SecurityConfiguration extends WebSecurityConfigurerAdapter {
     @Bean
     public CorsConfigurationSource corsConfigurationSource() {
         final CorsConfiguration configuration = new CorsConfiguration();
-        configuration.setAllowedOrigins(ImmutableList.of("*"));
+        configuration.setAllowedOrigins(ImmutableList.of("*", "https://fierce-mesa-84981.herokuapp.com"));
         configuration.setAllowedMethods(ImmutableList.of("HEAD",
                 "GET", "POST", "PUT", "DELETE", "PATCH"));
         // setAllowCredentials(true) is important, otherwise:
