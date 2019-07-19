@@ -31,7 +31,6 @@ public class JwtAuthenticationFilter extends UsernamePasswordAuthenticationFilte
     public Authentication attemptAuthentication(HttpServletRequest request, HttpServletResponse response) throws AuthenticationException {
         LoginRequestDto credentials = null;
         try {
-            System.out.println(request.getInputStream());
             credentials = new ObjectMapper().readValue(request.getInputStream(), LoginRequestDto.class);
         } catch (IOException e) {
             System.out.println("!!! BEGINNING STACK TRACE !!!");
