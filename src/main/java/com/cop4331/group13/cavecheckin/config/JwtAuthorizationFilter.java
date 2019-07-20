@@ -5,6 +5,8 @@ import com.auth0.jwt.algorithms.Algorithm;
 import com.cop4331.group13.cavecheckin.dao.UserDao;
 import com.cop4331.group13.cavecheckin.domain.User;
 import com.cop4331.group13.cavecheckin.domain.UserDetailImpl;
+import org.springframework.boot.autoconfigure.security.SecurityProperties;
+import org.springframework.core.annotation.Order;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
@@ -17,6 +19,7 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 
+@Order(SecurityProperties.BASIC_AUTH_ORDER - 10)
 public class JwtAuthorizationFilter extends BasicAuthenticationFilter {
 
     private UserDao userDao;
