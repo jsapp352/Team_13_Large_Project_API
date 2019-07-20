@@ -8,6 +8,7 @@ import org.springframework.boot.CommandLineRunner;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
+import javax.xml.bind.DatatypeConverter;
 import java.time.DayOfWeek;
 import java.time.LocalDateTime;
 import java.time.Month;
@@ -21,6 +22,7 @@ public class DbInit implements CommandLineRunner {
     private TaCourseDao taCourseDao;
     private SessionDao sessionDao;
     private PasswordEncoder passwordEncoder;
+    private HashSet<String> kioskPins;
 
     public DbInit(CourseDao courseDao, UserDao userDao, TaCourseDao taCourseDao, SessionDao sessionDao, PasswordEncoder passwordEncoder) {
         this.courseDao = courseDao;
@@ -419,7 +421,27 @@ public class DbInit implements CommandLineRunner {
         user.setUsername(username);
         user.setPassword(passwordEncoder.encode(firstName));
         user.setEmail(email);
+        user.setKioskPin(generatePin());
 
         return user;
+    }
+
+    private String generatePin() {
+        // Pull the kiosk pins if we haven't already;
+        if (kioskPins == null) {
+            kioskPins = new HashSet<String>();
+            kioskPins.addAll(userDao.findAllKioskPins());
+        }
+
+        // Generate a unique pin
+        String pin = DatatypeConverter.printLong((long)(Math.random() * 1000000));
+        while (kioskPins.contains(pin)) {
+            pin = DatatypeConverter.printLong((long)(Math.random() * 1000000));
+        }
+
+        // Add the pin to the set
+        kioskPins.add(pin);
+
+        return pin;
     }
 }
