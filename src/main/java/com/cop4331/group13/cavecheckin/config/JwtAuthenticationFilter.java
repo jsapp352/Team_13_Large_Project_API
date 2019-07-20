@@ -16,6 +16,7 @@ import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
+import java.io.PrintWriter;
 import java.util.ArrayList;
 import java.util.Date;
 
@@ -33,12 +34,18 @@ public class JwtAuthenticationFilter extends UsernamePasswordAuthenticationFilte
         try {
             credentials = new ObjectMapper().readValue(request.getInputStream(), LoginRequestDto.class);
         } catch (IOException e) {
+            System.out.println("!!! BEGINNING STACK TRACE !!!");
             e.printStackTrace();
+            System.out.println("!!! ENDING STACK TRACE !!!");
         }
 
-        UsernamePasswordAuthenticationToken authenticationToken = new UsernamePasswordAuthenticationToken(
+        UsernamePasswordAuthenticationToken authenticationToken = credentials != null ? new UsernamePasswordAuthenticationToken(
                 credentials.getUsername(),
                 credentials.getPassword(),
+                new ArrayList<>()
+        ) : new UsernamePasswordAuthenticationToken(
+                null,
+                null,
                 new ArrayList<>()
         );
 
