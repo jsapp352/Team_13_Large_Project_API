@@ -15,7 +15,13 @@ import org.springframework.security.authentication.UsernamePasswordAuthenticatio
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
+import javax.crypto.BadPaddingException;
+import javax.crypto.Cipher;
+import javax.crypto.IllegalBlockSizeException;
+import javax.crypto.SecretKey;
+import javax.crypto.spec.SecretKeySpec;
 import javax.xml.bind.DatatypeConverter;
+import java.security.InvalidKeyException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -55,6 +61,8 @@ public class UserService {
 
         return dtos;
     }
+
+
 
     public UserResponseDto addUser(UserAddRequestDto userDto, String role) {
         // Map the dto to a regular user object and generate a random kioskPin
@@ -258,5 +266,56 @@ public class UserService {
         Course course = courseDao.findById(courseId).orElse(null);
         Long userId = dao.findUserIdByUsername(username);
         if (userId == null || course == null || course.getUserId() != userId) throw new AccessDeniedException("You are not authorized to access this course");
+    }
+
+    public UserByPinResponseDto getUserByEncryptedPin(UserByPinRequestDto dto) {
+        String encryptedPin = dto.getEncryptedPin();
+
+        // Attempt to decrypt the kiosk PIN
+        String decryptedPin;
+        try {
+            decryptedPin = decryptPin(encryptedPin);
+        }
+        catch (Exception e) {
+            return null;
+        }
+
+        User user = dao.findByKioskPin(decryptedPin);
+
+        return mapper.map(user, UserByPinResponseDto.class);
+    }
+
+    private String decryptPin(String encryptedPin)
+            throws InvalidKeyException, BadPaddingException, IllegalBlockSizeException {
+        String keyGenString = System.getenv("AES_SECRET");
+
+        // Convert keyGenString to a byte array.
+        byte[] encryptionKeyBytes = keyGenString.getBytes();
+
+        // Convert encryptedPin string to a byte array.
+        byte[] encryptedPinBytes = DatatypeConverter.parseHexBinary(encryptedPin);
+
+        // Instantiate the Cipher and encryption key objects.
+        Cipher cipher;
+        SecretKey secretKey;
+        try
+        {
+            cipher = Cipher.getInstance("AES/ECB/PKCS5Padding");
+            secretKey = new SecretKeySpec(encryptionKeyBytes, "AES");
+        }
+        catch (Exception e)
+        {
+            System.out.println(e);
+            return null;
+        }
+
+        // Initialize the Cipher object with the secret key value in decryption mode.
+        cipher.init(Cipher.DECRYPT_MODE, secretKey);
+
+        // Decrypt the PIN byte array.
+        byte[] pinBytes = cipher.doFinal(encryptedPinBytes);
+
+        // Return the decrypted PIN byte array as a string.
+        return new String(pinBytes);
     }
 }
