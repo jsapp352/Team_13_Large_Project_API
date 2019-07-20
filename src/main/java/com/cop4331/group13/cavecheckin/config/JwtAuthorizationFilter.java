@@ -19,7 +19,7 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 
-@Order(SecurityProperties.BASIC_AUTH_ORDER - 10)
+
 public class JwtAuthorizationFilter extends BasicAuthenticationFilter {
 
     private UserDao userDao;
