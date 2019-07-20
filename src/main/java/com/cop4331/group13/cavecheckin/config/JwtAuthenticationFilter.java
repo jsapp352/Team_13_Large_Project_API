@@ -65,7 +65,6 @@ public class JwtAuthenticationFilter extends UsernamePasswordAuthenticationFilte
         PrintWriter writer =response.getWriter();
         writer.print("\"sup\":\"Heyyyyy\"");
         writer.flush();
-        writer.close();
 
         response.addHeader(JwtProperties.HEADER_STRING, JwtProperties.TOKEN_PREFIX + token);
     }
