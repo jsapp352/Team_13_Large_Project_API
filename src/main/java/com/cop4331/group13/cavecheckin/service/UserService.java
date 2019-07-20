@@ -1,7 +1,6 @@
 package com.cop4331.group13.cavecheckin.service;
 
 import com.cop4331.group13.cavecheckin.api.dto.user.*;
-import com.cop4331.group13.cavecheckin.config.EncryptionUtil;
 import com.cop4331.group13.cavecheckin.dao.CourseDao;
 import com.cop4331.group13.cavecheckin.dao.TaCourseDao;
 import com.cop4331.group13.cavecheckin.dao.UserDao;
@@ -12,7 +11,6 @@ import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.security.access.AccessDeniedException;
-import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
