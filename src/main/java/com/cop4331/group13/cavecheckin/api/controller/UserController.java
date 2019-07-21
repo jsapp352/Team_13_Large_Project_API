@@ -1,9 +1,6 @@
 package com.cop4331.group13.cavecheckin.api.controller;
 
-import com.cop4331.group13.cavecheckin.api.dto.user.UserAddRequestDto;
-import com.cop4331.group13.cavecheckin.api.dto.user.UserPasswordRequestDto;
-import com.cop4331.group13.cavecheckin.api.dto.user.UserResponseDto;
-import com.cop4331.group13.cavecheckin.api.dto.user.UserUpdateRequestDto;
+import com.cop4331.group13.cavecheckin.api.dto.user.*;
 import com.cop4331.group13.cavecheckin.config.JwtProperties;
 import com.cop4331.group13.cavecheckin.config.SecurityConfiguration;
 import com.cop4331.group13.cavecheckin.service.UserService;
@@ -95,5 +92,10 @@ public class UserController {
     @RequestMapping(value = "/ta/", method = RequestMethod.PUT)
     public UserResponseDto updateSelf(@RequestBody UserUpdateRequestDto dto, @RequestHeader(value = JwtProperties.HEADER_STRING) String token) {
         return service.updateSelf(dto, SecurityConfiguration.getAuthSubject(token));
+    }
+
+    @RequestMapping(value = "/kiosk/pin/", method = RequestMethod.GET)
+    public UserByPinResponseDto getUserByEncryptedPin(@RequestBody UserByPinRequestDto dto) {
+        return service.getUserByEncryptedPin(dto);
     }
 }
