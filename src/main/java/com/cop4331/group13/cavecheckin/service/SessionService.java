@@ -1,6 +1,7 @@
 package com.cop4331.group13.cavecheckin.service;
 
 import com.cop4331.group13.cavecheckin.api.dto.session.*;
+import com.cop4331.group13.cavecheckin.config.EncryptionUtil;
 import com.cop4331.group13.cavecheckin.dao.CourseDao;
 import com.cop4331.group13.cavecheckin.dao.SessionDao;
 import com.cop4331.group13.cavecheckin.dao.UserDao;
@@ -288,9 +289,10 @@ public class SessionService {
 
     private User getUserByEncryptedPin(String encryptedPin) {
         // Attempt to decrypt the kiosk PIN
+        EncryptionUtil util = new EncryptionUtil();
         String decryptedPin;
         try {
-            decryptedPin = decryptPin(encryptedPin);
+            decryptedPin = util.decrypt(encryptedPin);
         }
         catch (Exception e) {
             return null;
@@ -298,40 +300,6 @@ public class SessionService {
 
         // Find user by PIN.
         return userDao.findByKioskPin(decryptedPin);
-    }
-
-    private String decryptPin(String encryptedPin)
-            throws InvalidKeyException, BadPaddingException, IllegalBlockSizeException {
-        String keyGenString = System.getenv("AES_SECRET");
-
-        // Convert keyGenString to a byte array.
-        byte[] encryptionKeyBytes = keyGenString.getBytes();
-
-        // Convert encryptedPin string to a byte array.
-        byte[] encryptedPinBytes = DatatypeConverter.parseHexBinary(encryptedPin);
-
-        // Instantiate the Cipher and encryption key objects.
-        Cipher cipher;
-        SecretKey secretKey;
-        try
-        {
-            cipher = Cipher.getInstance("AES/ECB/PKCS5Padding");
-            secretKey = new SecretKeySpec(encryptionKeyBytes, "AES");
-        }
-        catch (Exception e)
-        {
-            System.out.println(e);
-            return null;
-        }
-
-        // Initialize the Cipher object with the secret key value in decryption mode.
-        cipher.init(Cipher.DECRYPT_MODE, secretKey);
-
-        // Decrypt the PIN byte array.
-        byte[] pinBytes = cipher.doFinal(encryptedPinBytes);
-
-        // Return the decrypted PIN byte array as a string.
-        return new String(pinBytes);
     }
 
     private int averageSessionDuration(List<Session> sessions) {

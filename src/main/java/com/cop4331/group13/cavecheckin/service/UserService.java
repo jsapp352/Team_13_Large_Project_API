@@ -1,6 +1,7 @@
 package com.cop4331.group13.cavecheckin.service;
 
 import com.cop4331.group13.cavecheckin.api.dto.user.*;
+import com.cop4331.group13.cavecheckin.config.EncryptionUtil;
 import com.cop4331.group13.cavecheckin.dao.CourseDao;
 import com.cop4331.group13.cavecheckin.dao.TaCourseDao;
 import com.cop4331.group13.cavecheckin.dao.UserDao;
@@ -11,11 +12,16 @@ import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.security.access.AccessDeniedException;
-import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
+import javax.crypto.BadPaddingException;
+import javax.crypto.Cipher;
+import javax.crypto.IllegalBlockSizeException;
+import javax.crypto.SecretKey;
+import javax.crypto.spec.SecretKeySpec;
 import javax.xml.bind.DatatypeConverter;
+import java.security.InvalidKeyException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -55,6 +61,8 @@ public class UserService {
 
         return dtos;
     }
+
+
 
     public UserResponseDto addUser(UserAddRequestDto userDto, String role) {
         // Map the dto to a regular user object and generate a random kioskPin
@@ -258,5 +266,13 @@ public class UserService {
         Course course = courseDao.findById(courseId).orElse(null);
         Long userId = dao.findUserIdByUsername(username);
         if (userId == null || course == null || course.getUserId() != userId) throw new AccessDeniedException("You are not authorized to access this course");
+    }
+
+    public UserByPinResponseDto getUserByEncryptedPin(UserByPinRequestDto dto) {
+        EncryptionUtil util = new EncryptionUtil();
+
+        User user = dao.findByKioskPin(util.decrypt(dto.getEncryptedPin()));
+
+        return (user != null) ? mapper.map(user, UserByPinResponseDto.class) : null;
     }
 }
