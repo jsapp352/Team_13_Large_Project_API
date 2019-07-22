@@ -150,8 +150,8 @@ public class DbInit implements CommandLineRunner {
         int typicalAverageSessionDuration = 22 * 60;
         int minimumAverageSessionDuration = 9 * 60;
 
-        int typicalAverageWaitTime = 17 * 60;
-        int minimumAverageWaitTime = 7 * 60;
+        int typicalAverageWaitTime = 10 * 60;
+        int minimumAverageWaitTime = 5 * 60;
 
         HashMap<String, Month[]> semesterMonthRange = new HashMap<>();
         semesterMonthRange.put("Fall", new Month[] {Month.AUGUST, Month.NOVEMBER});
