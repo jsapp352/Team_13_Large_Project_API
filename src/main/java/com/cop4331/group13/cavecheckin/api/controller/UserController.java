@@ -94,7 +94,7 @@ public class UserController {
         return service.updateSelf(dto, SecurityConfiguration.getAuthSubject(token));
     }
 
-    @RequestMapping(value = "/kiosk/pin/", method = RequestMethod.GET)
+    @RequestMapping(value = "/kiosk/pin/", method = RequestMethod.POST)
     public UserByPinResponseDto getUserByEncryptedPin(@RequestBody UserByPinRequestDto dto) {
         return service.getUserByEncryptedPin(dto);
     }
