@@ -393,7 +393,7 @@ public class DbInit implements CommandLineRunner {
 
         for (int i = 0; i < namesAndPins.length; i++)
         {
-            User user = createTestUser(namesAndPins[0][i], namesAndPins[1][i]);
+            User user = createTestUser(namesAndPins[i][0], namesAndPins[i][1]);
             user.setRole(role);
             user.setActive(true);
 
