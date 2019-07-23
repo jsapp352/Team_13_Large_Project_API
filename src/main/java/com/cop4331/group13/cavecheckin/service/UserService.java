@@ -271,8 +271,14 @@ public class UserService {
     public UserByPinResponseDto getUserByEncryptedPin(UserByPinRequestDto dto) {
         EncryptionUtil util = new EncryptionUtil();
 
-        User user = dao.findByKioskPin(util.decrypt(dto.getEncryptedPin()));
+        String pin = util.decrypt(dto.getEncryptedPin());
 
-        return (user != null) ? mapper.map(user, UserByPinResponseDto.class) : null;
+        User user = dao.findByKioskPin(pin);
+
+        // Double check the results of the SQL query. It's wrong sometimes.
+        if (user != null && user.getKioskPin() == pin)
+            return mapper.map(user, UserByPinResponseDto.class);
+        else
+            return null;
     }
 }

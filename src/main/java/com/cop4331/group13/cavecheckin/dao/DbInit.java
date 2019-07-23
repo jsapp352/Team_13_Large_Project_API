@@ -58,39 +58,39 @@ public class DbInit implements CommandLineRunner {
                 "COP3330 Object Oriented Programming"
         };
 
-        String[] teacherNames = new String[]{
-                "Rick Deckard",
-                "Sarah Connor",
-                "Llewelyn Moss",
-                "Clarice Starling"
+        String [][] teacherNamesAndPins = new String[][]{
+                {"Rick Deckard", "206131"},
+                {"Sarah Connor", "227038"},
+                {"Llewelyn Moss", "881197"},
+                {"Clarice Starling", "563327"}
         };
 
-        String [] taNames = new String[] {
-                "Pinky Penguin",
-                "Sarah Lynn",
-                "Herb Kazzaz",
-                "Charlotte Moore",
-                "Beatrice Horseman",
-                "Butterscotch Horseman",
-                "Lenny Turteltaub",
-                "Sextina Aquafina",
-                "Kelsey Jannings",
-                "Vanessa Gekko",
-                "Charley Witherspoon",
-                "Vincent Adultman",
-                "Corduroy Jackson-Jackson",
-                "Rutabaga Rabbitowitz",
-                "Hank Hippopopalous",
-                "Ralph Stilton",
-                "Stefani Stilton",
-                "Woodchuck Coodchuck-Berkowitz",
-                "Joseph Sugarman",
-                "Honey Sugarman",
-                "Courtney Portnoy",
-                "Ana Spanikopita",
-                "Flip McVicker",
-                "Gina Cazador",
-                "Pickles Aplenty"
+        String [][] taNamesAndPins = new String[][] {
+                {"Pinky Penguin", "461396"},
+                {"Sarah Lynn", "33232"},
+                {"Herb Kazzaz", "566299"},
+                {"Charlotte Moore", "516215"},
+                {"Beatrice Horseman", "96168"},
+                {"Butterscotch Horseman", "750065"},
+                {"Lenny Turteltaub", "703802"},
+                {"Sextina Aquafina", "383422"},
+                {"Kelsey Jannings", "449557"},
+                {"Vanessa Gekko", "744935"},
+                {"Charley Witherspoon", "640327"},
+                {"Vincent Adultman", "5266"},
+                {"Corduroy Jackson-Jackson", "413211"},
+                {"Rutabaga Rabbitowitz", "486449"},
+                {"Hank Hippopopalous", "407139"},
+                {"Ralph Stilton", "493076"},
+                {"Stefani Stilton", "918923"},
+                {"Woodchuck Coodchuck-Berkowitz", "725631"},
+                {"Joseph Sugarman", "827401"},
+                {"Honey Sugarman", "753201"},
+                {"Courtney Portnoy", "619701"},
+                {"Ana Spanikopita", "226399"},
+                {"Flip McVicker", "411874"},
+                {"Gina Cazador", "197875"},
+                {"Pickles Aplenty", "532630"}
         };
 
         String [] studentNames = new String [] {
@@ -126,8 +126,8 @@ public class DbInit implements CommandLineRunner {
                 "Wendy"
         };
 
-        List<User> teachers = createUsersWithRole(teacherNames, "TEACHER");
-        List<User> tAs = createUsersWithRole(taNames, "TA");
+        List<User> teachers = createUsersWithRole(teacherNamesAndPins, "TEACHER");
+        List<User> tAs = createUsersWithRole(taNamesAndPins, "TA");
 
         List<Course> courses = createCourses(courseCodesandNames, teachers);
 
@@ -388,12 +388,12 @@ public class DbInit implements CommandLineRunner {
         return course;
     }
 
-    private List<User> createUsersWithRole(String[] names, String role) {
+    private List<User> createUsersWithRole(String[][] namesAndPins, String role) {
         List<User> users = new ArrayList<>();
 
-        for (String name : names)
+        for (int i = 0; i < namesAndPins.length; i++)
         {
-            User user = createTestUser(name);
+            User user = createTestUser(namesAndPins[0][i], namesAndPins[1][i]);
             user.setRole(role);
             user.setActive(true);
 
@@ -404,7 +404,7 @@ public class DbInit implements CommandLineRunner {
         return users;
     }
 
-    private User createTestUser(String name)
+    private User createTestUser(String name, String pin)
     {
         User user = new User();
 
@@ -421,7 +421,7 @@ public class DbInit implements CommandLineRunner {
         user.setUsername(username);
         user.setPassword(passwordEncoder.encode(firstName));
         user.setEmail(email);
-        user.setKioskPin(generatePin());
+        user.setKioskPin(pin);
 
         return user;
     }
