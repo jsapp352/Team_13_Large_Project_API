@@ -271,7 +271,7 @@ public class UserService {
     public UserByPinResponseDto getUserByEncryptedPin(UserByPinRequestDto dto) {
         EncryptionUtil util = new EncryptionUtil();
 
-        String pin = util.decrypt(dto.getEncryptedPin());
+        String pin = util.decrypt(dto.getEncryptedPin()).trim();
 
         User user = dao.findByKioskPin(pin);
 
