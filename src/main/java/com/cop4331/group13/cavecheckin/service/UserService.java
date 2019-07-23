@@ -276,7 +276,7 @@ public class UserService {
         User user = dao.findByKioskPin(pin);
 
         // Double check the results of the SQL query. It's wrong sometimes.
-        if (user != null && user.getKioskPin() == pin)
+        if (user != null && user.getKioskPin().equals(pin))
             return mapper.map(user, UserByPinResponseDto.class);
         else
             return null;
