@@ -325,7 +325,7 @@ public class SessionService {
         }
 
         // Return the average session duration in seconds
-        return (int)(totalDuration / recordCount);
+        return recordCount > 0 ? (int)(totalDuration / recordCount) : 0;
     }
 
     private int averageWaitDuration(List<Session> sessions) {
@@ -351,6 +351,6 @@ public class SessionService {
         }
 
         // Return the average session duration in seconds
-        return (int)(totalDuration / recordCount);
+        return recordCount > 0 ? (int)(totalDuration / recordCount) : 0;
     }
 }
