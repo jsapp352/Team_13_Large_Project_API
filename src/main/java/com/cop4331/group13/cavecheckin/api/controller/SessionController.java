@@ -52,12 +52,12 @@ public class SessionController {
         return service.cancelTutor(session);
     }
 
-    @RequestMapping(value = "/ta/taSessions/", method = RequestMethod.GET)
+    @RequestMapping(value = "/ta/taSessions/", method = RequestMethod.POST)
     public SessionHistoryResponseDto taSessionHistory(@RequestBody SessionHistoryRequestDto request) {
         return service.getSessionHistoryByCourseIdAndTaId(request);
     }
 
-    @RequestMapping(value = "/teacher/courseSessions/", method = RequestMethod.GET)
+    @RequestMapping(value = "/teacher/courseSessions/", method = RequestMethod.POST)
     public SessionHistoryResponseDto sessionHistory(@RequestBody SessionHistoryRequestDto request) {
         return service.getSessionHistoryByCourseId(request);
     }
