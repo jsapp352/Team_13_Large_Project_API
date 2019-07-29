@@ -23,11 +23,6 @@ public class UserController {
         return service.getSelf(SecurityConfiguration.getAuthSubject(token));
     }
 
-    @RequestMapping(value = "/", method = RequestMethod.POST)
-    public UserResponseDto addUser(@RequestBody UserAddRequestDto user) {
-        return service.addUser(user, "ADMIN");
-    }
-
     @RequestMapping(value = "/admin/", method = RequestMethod.GET)
     public List<UserResponseDto> findTeachers() {
         return service.getUsersByRole("TEACHER");
