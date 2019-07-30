@@ -199,7 +199,7 @@ public class DbInit implements CommandLineRunner {
 
             if (course.isActive()) {
                 for (; i < currentSessionCount; i++) {
-                    waitTime += (int) (60 * (4s.0 + 0.5 * Math.abs(rand.nextGaussian())));
+                    waitTime += (int) (60 * (4.0 + 0.5 * Math.abs(rand.nextGaussian())));
 
                     // Start current sessions any time from 1 to 20 minutes ago
                     LocalDateTime startTime = LocalDateTime.now().minusSeconds(waitTime);
