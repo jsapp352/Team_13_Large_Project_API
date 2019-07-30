@@ -174,22 +174,22 @@ public class DbInit implements CommandLineRunner {
             // Get a session count based on a Gaussian distribution and no less than a given number.
             int sessionCount = Math.max(
                     minimumSessionCount,
-                    (int)(averageSessionCount * (1.0 + rand.nextGaussian()))
+                    (int)(averageSessionCount * (1.0 + 0.5 * Math.abs(rand.nextGaussian())))
             );
 
             // Get a count of sessions to be currently open.
-            int currentSessionCount = (int)(averageCurrentSessionCount * (1.0 + rand.nextGaussian()));
+            int currentSessionCount = (int)(averageCurrentSessionCount * (1.0 + 0.5 * Math.abs(rand.nextGaussian())));
 
             // Get an average session duration based on a Gaussian distribution and no less than a given number.
             int averageSessionDuration = Math.max(
                     minimumAverageSessionDuration,
-                    (int)(typicalAverageSessionDuration * (1.0 + rand.nextGaussian()/4))
+                    (int)(typicalAverageSessionDuration * (1.0 + 0.5 * Math.abs(rand.nextGaussian())/4))
             );
 
             // Get an average session wait time based on a Gaussian distribution and no less than a given number.
             int averageWaitTime = Math.max(
                     minimumAverageWaitTime,
-                    (int)(typicalAverageWaitTime * (1.0 + rand.nextGaussian()/4))
+                    (int)(typicalAverageWaitTime * (1.0 + 0.5 * Math.abs(rand.nextGaussian())/4))
             );
 
             int startingWaitTime = 3 * 60;
@@ -199,7 +199,7 @@ public class DbInit implements CommandLineRunner {
 
             if (course.isActive()) {
                 for (; i < currentSessionCount; i++) {
-                    waitTime += (int) (60 * (4.0 + rand.nextGaussian()));
+                    waitTime += (int) (60 * (4s.0 + 0.5 * Math.abs(rand.nextGaussian())));
 
                     // Start current sessions any time from 1 to 20 minutes ago
                     LocalDateTime startTime = LocalDateTime.now().minusSeconds(waitTime);
@@ -246,8 +246,8 @@ public class DbInit implements CommandLineRunner {
                         startTime = startTime.plusDays(2);
                 }
 
-                LocalDateTime helpTime = startTime.plusSeconds((long)(averageWaitTime * (1 + rand.nextGaussian()/4)));
-                LocalDateTime endTime = helpTime.plusSeconds((long)(averageSessionDuration * (1 + rand.nextGaussian()/4)));
+                LocalDateTime helpTime = startTime.plusSeconds((long)(averageWaitTime * (1 + 0.5 * Math.abs(rand.nextGaussian())/4)));
+                LocalDateTime endTime = helpTime.plusSeconds((long)(averageSessionDuration * (1 + 0.5 * Math.abs(rand.nextGaussian())/4)));
 
                 long taId = tAs[rand.nextInt(tAs.length)].getUserId();
 
